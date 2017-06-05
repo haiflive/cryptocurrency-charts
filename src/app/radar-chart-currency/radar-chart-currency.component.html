@@ -1,0 +1,20 @@
+<p>
+  radar-chart-currency works!
+</p>
+<table>
+  <tr>
+    <td>
+      <div style="display: block;">
+        <canvas baseChart
+              [datasets]="radarChartData"
+              [labels]="radarChartLabels"
+              [chartType]="radarChartType"
+              (chartHover)="chartHovered($event)"
+              (chartClick)="chartClicked($event)"></canvas>
+      </div>
+    </td>
+    <td>
+    chart 2
+    </td>
+  <tr>
+</table>
