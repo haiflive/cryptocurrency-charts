@@ -1,27 +1,65 @@
+<div class="col-md-12">
 <p>
   radar-chart-currency works!
 </p>
 
-<div style="width: 300px; margin-bottom: 20px;">
-  <h3>Select a Cyrrency</h3>
-  <ng-select [allowClear]="true"
-              [items]="items"
-              [disabled]="disabled"
-              (data)="refreshValue($event)"
-              (selected)="selected($event)"
-              (removed)="removed($event)"
-              (typed)="typed($event)"
-              placeholder="No city selected">
-  </ng-select>
+<div style="margin-bottom: 20px;">
+ <div class="row">
+   <div class="col-md-4">
+      <div class="row">
+        <label class="col-md-12">Select a Cyrrency</label>
+        <div class="col-md-12">
+          <ng-select
+                  [items]="items"
+                  [active]="items"
+                  (data)="refreshValue($event)"
+                  (selected)="selected($event)"
+                  (removed)="removed($event)"
+                  (typed)="typed($event)"
+                  placeholder="No cyrrency selected">
+          </ng-select>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2">
+      <div class="row">
+        <label class="col-md-12">Select a depth</label>
+        <div class="col-md-12">
+          <input type="number" class="form-control" [(ngModel)]="chartDepthV" />
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2">
+      <div class="row">
+        <label class="col-md-12">Throttle</label>
+        <div class="col-md-12">
+          <input type="number" class="form-control" [(ngModel)]="chartThrottleV" />
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2">
+      <div class="row">
+        <label class="col-md-12"><span class="pull-right">Grouping</span></label>
+        <div class="col-md-12">
+            <button type="button" class="btn btn-primary pull-right"
+                    [(ngModel)]="chartGroupingV" btnCheckbox
+                    btnCheckboxTrue="1" btnCheckboxFalse="0" ngDefaultControl>
+                    {{chartGroupingV === '1' ? 'Enable' : 'Disable'}}
+            </button>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2">
+      <div class="row">
+        <label class="col-md-12">Decimals</label>
+        <div class="col-md-12">
+            <input type="number" class="form-control" [(ngModel)]="chartGroupingDecimalsV" [disabled]="!_chartGrouping" />
+        </div>
+      </div>
+    </div>
+  </div>
   <p></p>
   <pre>{{value.text}}</pre>
-  <div>
-    <button type="button" class="btn btn-primary"
-            [(ngModel)]="disabledV" btnCheckbox
-            btnCheckboxTrue="1" btnCheckboxFalse="0" ngDefaultControl>
-      {{disabled === '1' ? 'Enable' : 'Disable'}}
-    </button>
-  </div>
 </div>
 
 <table width="100%">
@@ -51,3 +89,4 @@
     </td>
   <tr>
 </table>
+</div>

@@ -5,6 +5,7 @@ import { ChartsModule } from 'ng2-charts';
 import { HttpModule }    from '@angular/http';
 import { SelectModule } from 'ng2-select-compat'
 import { FormsModule } from '@angular/forms';
+import { TabsModule, ButtonsModule } from 'ng2-bootstrap';
 
 import { AppComponent } from './app.component';
 import { RadarChartCurrencyComponent } from './radar-chart-currency/radar-chart-currency.component';
@@ -22,6 +23,8 @@ import { PoloniexApiService } from './poloniex-api.service';
     HttpModule,
     SelectModule,
     FormsModule,
+    TabsModule.forRoot(),
+    ButtonsModule.forRoot(),
     RouterModule.forRoot([
       {
         path: '',

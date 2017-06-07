@@ -30,9 +30,9 @@ export class PoloniexApiService {
     [28, 48, 40]
   ];
   
-  public getMarketCyrrency(cyrrency_code:string) : Promise<any> {
+  public getMarketCyrrency(cyrrency_code:string, chart_depth:number) : Promise<any> {
     // return Promise.resolve(this.radarChartData);
-    const url = `https://poloniex.com/public?command=returnOrderBook&currencyPair=`+cyrrency_code;
+    const url = `https://poloniex.com/public?command=returnOrderBook&currencyPair=`+cyrrency_code+`&depth=`+chart_depth;
     
     return this.http.get(url)
             .toPromise()

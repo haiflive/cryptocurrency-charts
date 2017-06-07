@@ -80,6 +80,9 @@ export class RadarChartCurrencyComponent implements OnInit {
       id: 'BTC_ETH',
       text: 'Ethereum',
     }, {
+      id: 'BTC_XRP',
+      text: 'Ripple',
+    }, {
       id: 'BTC_XEM',
       text: 'NEM',
     }, {
@@ -120,6 +123,45 @@ export class RadarChartCurrencyComponent implements OnInit {
   }
   // --
   
+  private _chartDepth:number = 10;
+  private _chartThrottle:number = -1; // default disabled
+  public _chartGrouping:boolean = false;
+  private _chartGroupingDecimals:number = 6; // default 6 decimals
+ 
+  private get chartDepthV():number {
+    return this._chartDepth;
+  }
+ 
+  private set chartDepthV(value:number) {
+    this._chartDepth = value;
+    this.refreshChartData();
+  }
+  
+  private get chartThrottleV():number {
+    return this._chartThrottle;
+  }
+ 
+  private set chartThrottleV(value:number) {
+    this._chartThrottle = value;
+  }
+  
+  private get chartGroupingV():string {
+    return this._chartGrouping ? '1' : '0';
+  }
+ 
+  private set chartGroupingV(value:string) {
+    this._chartGrouping = value === '1';
+  }
+  
+  private get chartGroupingDecimalsV():number {
+    return this._chartGroupingDecimals;
+  }
+ 
+  private set chartGroupingDecimalsV(value:number) {
+    this._chartGroupingDecimals = value;
+  }
+  
+  // --
   public radarChartType:string = 'radar';
  
   // events
@@ -134,7 +176,7 @@ export class RadarChartCurrencyComponent implements OnInit {
   private refreshChartData():void {
     this._poloniexService.getMarketDepth().then((charts) => this.radarChartData = charts);
     
-    this._poloniexService.getMarketCyrrency(this.value.id).then((data) => {
+    this._poloniexService.getMarketCyrrency(this.value.id, this._chartDepth).then((data) => {
         let chart_data_asks: Array<number> = [];
         let chart_data_bids: Array<number> = [];
         let chart_data_asks_depth: Array<number> = [];
