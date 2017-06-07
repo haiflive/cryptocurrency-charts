@@ -9,47 +9,8 @@ import { PoloniexApiService } from '../poloniex-api.service';
 export class RadarChartCurrencyComponent implements OnInit {
 
   constructor(private _poloniexService:PoloniexApiService) {
-    this._poloniexService.getMarketDepth().then((charts) => this.radarChartData = charts);
-    
-    this._poloniexService.getMarketCyrrency('BTC_ETH').then((data) => {
-        let chart_data_asks: Array<number> = [];
-        let chart_data_bids: Array<number> = [];
-        let chart_data_asks_depth: Array<number> = [];
-        let chart_data_bids_depth: Array<number> = [];
-        let chart_labels: Array<string> = [];
-        
-        
-        for(let i = 0, total:number = 0; i < data.bids.length; i++) {
-            total += data.bids[i][1];
-            chart_data_asks.unshift(0);
-            chart_data_asks_depth.unshift(0);
-            chart_data_bids.unshift(data.bids[i][1]);
-            chart_data_bids_depth.unshift(total);
-            chart_labels.unshift(data.bids[i][0]+' BTC');
-        }
-        
-        for(let i = 0, total:number = 0; i < data.asks.length; i++) {
-            total += data.asks[i][1];
-            chart_data_asks.push(data.asks[i][1]);
-            chart_data_asks_depth.push(total);
-            chart_data_bids.push(0);
-            chart_data_bids_depth.push(0);
-            chart_labels.push(data.asks[i][0]+' BTC');
-        }
-        
-        this.lineChartLabels = chart_labels;
-        
-        setTimeout(() => {
-          this.lineChartData = [
-                {data: chart_data_asks, label: 'Asks'},
-                {data: chart_data_bids, label: 'Bids'},
-                {data: chart_data_asks_depth, label: 'Asks Depth'},
-                {data: chart_data_bids_depth, label: 'Bids Depth'}
-            ];
-        }, 50);
-        
-    });
-    
+    this.value = this.items[0];
+    this.refreshChartData();
   }
 
   ngOnInit() {
@@ -113,6 +74,52 @@ export class RadarChartCurrencyComponent implements OnInit {
     {data: [0, 0, 0, 0, 0, 0, 0], label: 'SELL'}
   ];
   
+  // Select
+  public items:Array<any> = [
+    {
+      id: 'BTC_ETH',
+      text: 'Ethereum',
+    }, {
+      id: 'BTC_XEM',
+      text: 'NEM',
+    }, {
+      id: 'BTC_XMR',
+      text: 'Monero',
+    }, {
+      id: 'BTC_BCN',
+      text: 'Bytecoin',
+    }, {
+      id: 'BTC_DGB',
+      text: 'DigiByte',
+    }, {
+      id: 'BTC_ZEC',
+      text: 'Zcash',
+    }, {
+      id: 'BTC_LSK',
+      text: 'Lisk',
+    }
+  ];
+  
+  private value:any = {};
+ 
+  public selected(value:any):void {
+    console.log('Selected value is: ', value);
+  }
+ 
+  public removed(value:any):void {
+    console.log('Removed value is: ', value);
+  }
+ 
+  public typed(value:any):void {
+    console.log('New search input: ', value);
+  }
+ 
+  public refreshValue(value:any):void {
+    this.value = value;
+    this.refreshChartData();
+  }
+  // --
+  
   public radarChartType:string = 'radar';
  
   // events
@@ -124,4 +131,46 @@ export class RadarChartCurrencyComponent implements OnInit {
     console.log(e);
   }
 
+  private refreshChartData():void {
+    this._poloniexService.getMarketDepth().then((charts) => this.radarChartData = charts);
+    
+    this._poloniexService.getMarketCyrrency(this.value.id).then((data) => {
+        let chart_data_asks: Array<number> = [];
+        let chart_data_bids: Array<number> = [];
+        let chart_data_asks_depth: Array<number> = [];
+        let chart_data_bids_depth: Array<number> = [];
+        let chart_labels: Array<string> = [];
+        
+        
+        for(let i = 0, total:number = 0; i < data.bids.length; i++) {
+            total += data.bids[i][1];
+            chart_data_asks.unshift(0);
+            chart_data_asks_depth.unshift(0);
+            chart_data_bids.unshift(data.bids[i][1]);
+            chart_data_bids_depth.unshift(total);
+            chart_labels.unshift(data.bids[i][0]+' BTC');
+        }
+        
+        for(let i = 0, total:number = 0; i < data.asks.length; i++) {
+            total += data.asks[i][1];
+            chart_data_asks.push(data.asks[i][1]);
+            chart_data_asks_depth.push(total);
+            chart_data_bids.push(0);
+            chart_data_bids_depth.push(0);
+            chart_labels.push(data.asks[i][0]+' BTC');
+        }
+        
+        this.lineChartLabels = chart_labels;
+        
+        setTimeout(() => {
+          this.lineChartData = [
+                {data: chart_data_asks, label: 'Asks'},
+                {data: chart_data_bids, label: 'Bids'},
+                {data: chart_data_asks_depth, label: 'Asks Depth'},
+                {data: chart_data_bids_depth, label: 'Bids Depth'}
+            ];
+        }, 50);
+        
+    });
+  }
 }

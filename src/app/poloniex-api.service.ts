@@ -30,9 +30,9 @@ export class PoloniexApiService {
     [28, 48, 40]
   ];
   
-  public getMarketCyrrency(code:string) : Promise<any> {
+  public getMarketCyrrency(cyrrency_code:string) : Promise<any> {
     // return Promise.resolve(this.radarChartData);
-    const url = `https://poloniex.com/public?command=returnOrderBook&currencyPair=BTC_ETH`;
+    const url = `https://poloniex.com/public?command=returnOrderBook&currencyPair=`+cyrrency_code;
     
     return this.http.get(url)
             .toPromise()
