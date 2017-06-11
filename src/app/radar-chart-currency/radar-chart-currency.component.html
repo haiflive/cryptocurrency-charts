@@ -10,8 +10,8 @@
         <label class="col-md-12">Select a Cyrrency</label>
         <div class="col-md-12">
           <ng-select
-                  [items]="items"
-                  [active]="items"
+                  [items]="items_select"
+                  [active]="items_select"
                   (data)="refreshValue($event)"
                   (selected)="selected($event)"
                   (removed)="removed($event)"
@@ -31,35 +31,32 @@
     </div>
     <div class="col-md-2">
       <div class="row">
-        <label class="col-md-12">Throttle</label>
+        <label class="col-md-12">Throttle (seconds)</label>
         <div class="col-md-12">
           <input type="number" class="form-control" [(ngModel)]="chartThrottleV" />
         </div>
       </div>
     </div>
-    <div class="col-md-2">
+    <div class="col-md-4">
       <div class="row">
-        <label class="col-md-12"><span class="pull-right">Grouping</span></label>
+        <label class="col-md-12">Grouping / Decimals</label>
         <div class="col-md-12">
-            <button type="button" class="btn btn-primary pull-right"
+            <div class="input-group">
+              <span class="input-group-btn">
+                <button type="button" class="btn btn-default pull-right"
                     [(ngModel)]="chartGroupingV" btnCheckbox
                     btnCheckboxTrue="1" btnCheckboxFalse="0" ngDefaultControl>
                     {{chartGroupingV === '1' ? 'Enable' : 'Disable'}}
-            </button>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-2">
-      <div class="row">
-        <label class="col-md-12">Decimals</label>
-        <div class="col-md-12">
-            <input type="number" class="form-control" [(ngModel)]="chartGroupingDecimalsV" [disabled]="!_chartGrouping" />
+                </button>
+              </span>
+              <input type="number" class="form-control" [(ngModel)]="chartGroupingDecimalsV" [disabled]="!_chartGrouping"/>
+            </div><!-- /input-group -->
         </div>
       </div>
     </div>
   </div>
   <p></p>
-  <pre>{{value.text}}</pre>
+  <div class="well well-sm" [innerHTML]="value_select.text"></div>
 </div>
 
 <table width="100%">
