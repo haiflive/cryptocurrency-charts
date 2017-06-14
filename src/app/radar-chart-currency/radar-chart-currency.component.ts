@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { PoloniexApiService } from '../poloniex-api.service';
 import { Observable } from 'rxjs/Rx';
 import * as _ from "lodash";
+import { Http } from '@angular/http';
+import {Ng2Highcharts, Ng2Highmaps, Ng2Highstocks} from 'ng2-highcharts';
 
 const COINS = [
   {
@@ -44,6 +46,10 @@ const COINS = [
     id: 'LBC',
     name: 'LBRY Credits',
     img: 'library-credit'
+  }, {
+    id: 'BTS',
+    name: 'BitShares',
+    img: 'bitshares'
   }
 ];
 
@@ -54,7 +60,7 @@ const COINS = [
 })
 export class RadarChartCurrencyComponent implements OnInit {
   
-  constructor(private _poloniexService:PoloniexApiService) {
+  constructor(private _poloniexService:PoloniexApiService, private http: Http) {
   }
 
   ngOnInit() {
@@ -73,63 +79,8 @@ export class RadarChartCurrencyComponent implements OnInit {
     this.setupRefresher();
   }
   
-  // lineChart
-  public lineChartData:Array<any> = [
-    {data: [], label: 'Asks'},
-    {data: [], label: 'Bids'},
-    {data: [], label: 'Asks Depth'},
-    {data: [], label: 'Bids Depth'},
-  ];
-  public lineChartLabels:Array<any> = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
-  
-  public lineChartOptions:any = {
-    responsive: true
-  };
-  public lineChartColors:Array<any> = [
-    { // Asks
-      backgroundColor: 'rgba(0,255,0,0.2)',
-      borderColor: 'rgba(0,255,0,1)',
-      pointBackgroundColor: 'rgba(0,255,0,1)',
-      pointBorderColor: '#fff',
-      pointHoverBackgroundColor: '#fff',
-      pointHoverBorderColor: 'rgba(0,255,0,0.8)'
-    },
-    { // Bids
-      backgroundColor: 'rgba(255,0,0,0.2)',
-      borderColor: 'rgba(255,0,0,1)',
-      pointBackgroundColor: 'rgba(255,0,0,1)',
-      pointBorderColor: '#fff',
-      pointHoverBackgroundColor: '#fff',
-      pointHoverBorderColor: 'rgba(255,0,0,0.8)'
-    },
-    { // Asks Depth
-      backgroundColor: 'rgba(100,255,0,0.2)',
-      borderColor: 'rgba(100,255,0,1)',
-      pointBackgroundColor: 'rgba(100,255,0,1)',
-      pointBorderColor: '#fff',
-      pointHoverBackgroundColor: '#fff',
-      pointHoverBorderColor: 'rgba(100,255,0,0.8)'
-    },
-    { // Bids Depth
-      backgroundColor: 'rgba(255,100,0,0.2)',
-      borderColor: 'rgba(255,100,0,1)',
-      pointBackgroundColor: 'rgba(255,100,0,1)',
-      pointBorderColor: '#fff',
-      pointHoverBackgroundColor: '#fff',
-      pointHoverBorderColor: 'rgba(255,100,0,1)'
-    }
-  ];
-  public lineChartLegend:boolean = true;
-  public lineChartType:string = 'line';
-  // --
-  
-  // Radar
-  public radarChartLabels:string[] = ['ETH', 'BTC', 'XRP', 'LTC', 'DGB', 'BCN', 'ZEC'];
- 
-  public radarChartData:any = [
-    {data: [0, 0, 0, 0, 0, 0, 0], label: 'BUY'},
-    {data: [0, 0, 0, 0, 0, 0, 0], label: 'SELL'}
-  ];
+  // ng2-highcharts
+  chartStock = {};
   
   // Select
   public items_select:Array<any> = [];
@@ -195,19 +146,8 @@ export class RadarChartCurrencyComponent implements OnInit {
   }
   
   // --
-  public radarChartType:string = 'radar';
- 
-  // events
-  public chartClicked(e:any):void {
-    console.log(e);
-  }
- 
-  public chartHovered(e:any):void {
-    console.log(e);
-  }
 
   private refreshChartData():void {
-    // this._poloniexService.getMarketDepth().then((charts) => this.radarChartData = charts);
     
     this._poloniexService.getMarketCyrrency(this.value_select.id, this._chartDepth).then((data) => {
         var result : any;
@@ -218,12 +158,25 @@ export class RadarChartCurrencyComponent implements OnInit {
           result = this.prepareDepthDataLinear(data);
         }
         
-        this.lineChartLabels = result.chart_labels;
-        
-        setTimeout(() => {
-          this.lineChartData = result.chart_data;
-        }, 50);
-        
+        // chart 2
+        this.chartStock = {
+          chart: {
+            type: 'line'
+          },
+          title: {
+            text: 'AAPL Stock Price'
+          },
+          xAxis: {
+            categories: result.chart_labels,
+            allowDecimals: true
+          },
+          yAxis: {
+            title: {
+              text: 'Fruit eaten'
+            }
+          },
+          series: result.chart_data
+        };
     });
   }
   
@@ -236,7 +189,7 @@ export class RadarChartCurrencyComponent implements OnInit {
       
       
       for(let i = 0, total:number = 0; i < data.bids.length; i++) {
-          total += data.bids[i][1];
+          total = +total + +data.bids[i][1];
           chart_data_asks.unshift(0);
           chart_data_asks_depth.unshift(0);
           chart_data_bids.unshift(data.bids[i][1]);
@@ -245,7 +198,7 @@ export class RadarChartCurrencyComponent implements OnInit {
       }
       
       for(let i = 0, total:number = 0; i < data.asks.length; i++) {
-          total += data.asks[i][1];
+          total = +total + +data.asks[i][1];
           chart_data_asks.push(data.asks[i][1]);
           chart_data_asks_depth.push(total);
           chart_data_bids.push(0);
