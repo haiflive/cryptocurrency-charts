@@ -164,7 +164,7 @@ export class RadarChartCurrencyComponent implements OnInit {
             type: 'line'
           },
           title: {
-            text: 'AAPL Stock Price'
+            text: 'MARKET DEPTH'
           },
           xAxis: {
             categories: result.chart_labels,
@@ -172,8 +172,16 @@ export class RadarChartCurrencyComponent implements OnInit {
           },
           yAxis: {
             title: {
-              text: 'Fruit eaten'
+              text: 'Coins'
             }
+          },
+          tooltip: {
+            shared: true
+          },
+          plotOptions: {
+              line: {
+                  animation: false
+              }
           },
           series: result.chart_data
         };
@@ -181,27 +189,36 @@ export class RadarChartCurrencyComponent implements OnInit {
   }
   
   private prepareDepthDataLinear(data:any) : any {
-      let chart_data_asks: Array<number> = [];
-      let chart_data_bids: Array<number> = [];
+      let chart_data_volume_btc: Array<number> = [];
+      let chart_data_total_btc: Array<number> = [];
+      let chart_data_volume: Array<number> = [];
       let chart_data_asks_depth: Array<number> = [];
       let chart_data_bids_depth: Array<number> = [];
       let chart_labels: Array<string> = [];
       
       
-      for(let i = 0, total:number = 0; i < data.bids.length; i++) {
-          total = +total + +data.bids[i][1];
-          chart_data_asks.unshift(0);
+      for(let i = 0, total_coins:number = 0, btc_total:number = 0; i < data.bids.length; i++) {
+          total_coins = +total_coins + +data.bids[i][1];
+          let btc = +data.bids[i][1] * +data.bids[i][0];
+          btc_total = +btc_total + +btc;
+          
+          chart_data_volume_btc.unshift( btc );
+          chart_data_total_btc.unshift( btc_total );
+          chart_data_volume.unshift(data.bids[i][1]);
           chart_data_asks_depth.unshift(0);
-          chart_data_bids.unshift(data.bids[i][1]);
-          chart_data_bids_depth.unshift(total);
+          chart_data_bids_depth.unshift(total_coins);
           chart_labels.unshift(data.bids[i][0]+' BTC');
       }
       
-      for(let i = 0, total:number = 0; i < data.asks.length; i++) {
-          total = +total + +data.asks[i][1];
-          chart_data_asks.push(data.asks[i][1]);
-          chart_data_asks_depth.push(total);
-          chart_data_bids.push(0);
+      for(let i = 0, total_coins:number = 0, btc_total:number = 0; i < data.asks.length; i++) {
+          total_coins = +total_coins + +data.asks[i][1];
+          let btc = +data.asks[i][1] * +data.asks[i][0];
+          btc_total = +btc_total + +btc;
+          
+          chart_data_volume_btc.push( btc );
+          chart_data_total_btc.push( btc_total );
+          chart_data_volume.push(data.asks[i][1]);
+          chart_data_asks_depth.push(total_coins);
           chart_data_bids_depth.push(0);
           chart_labels.push(data.asks[i][0]+' BTC');
       }
@@ -209,10 +226,11 @@ export class RadarChartCurrencyComponent implements OnInit {
       return {
           chart_labels: chart_labels,
           chart_data: [
-                {data: chart_data_asks, label: 'Asks'},
-                {data: chart_data_bids, label: 'Bids'},
-                {data: chart_data_asks_depth, label: 'Asks Depth'},
-                {data: chart_data_bids_depth, label: 'Bids Depth'}
+                {data: chart_data_volume_btc, name: 'BTC', type: 'spline'},
+                {data: chart_data_volume, name: 'Coins', type: 'column'},
+                {data: chart_data_asks_depth, name: 'Asks Coins', type: 'area'},
+                {data: chart_data_bids_depth, name: 'Bids Coins', type: 'area'},
+                {data: chart_data_total_btc, name: 'BTC Depth', type: 'area'}
             ]
       }
   }
