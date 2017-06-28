@@ -18,6 +18,19 @@ export class CurrencyListComponent implements OnInit {
     this.refreshChartData();
   }
   
+  // --
+  private topCoinLimit:number = 20;
+  
+  private get topCoinLimitV():number {
+    return this.topCoinLimit;
+  }
+ 
+  private set topCoinLimitV(value:number) {
+    this.topCoinLimit = value;
+    this.refreshChartData();
+  }
+  // --
+  
   // ng2-highcharts
   chartStock = {};
   chartCap = {};
@@ -32,27 +45,50 @@ export class CurrencyListComponent implements OnInit {
     ]).subscribe(t=> {
       var poloniexTickerData = t[0];
       var coinmarketcapTickerData = t[1];
+      
+      // default sort by 24h volume
+      coinmarketcapTickerData = _.sortBy(coinmarketcapTickerData, [(p) => 0 - +p['24h_volume_usd']]);
+      // limit top
+      var topCoinmarketcapTickerData = coinmarketcapTickerData.splice(0, this.topCoinLimit);
+      
       // --
       
       var categories : Array<string> = _.keys(poloniexTickerData);
       var last : Array<any> = []; // = _.map(poloniexTickerData, (p:any) => +p.last);
-      var chartBaseVolume : Array<number> = [];
+      var chartBaseVolume : Array<any> = [];
       var chartQuoteVolume : Array<number> = [];
       var chartQuoteVolumePersentage : Array<number> = [];
       
       _.each(poloniexTickerData, (p:any, key:any) => {
-        chartBaseVolume.push( +p.baseVolume );
-        chartQuoteVolume.push( +p.quoteVolume );
-        
-        // --
         let code = _.last(key.split('_'));
         let currencyObj = _.find(coinmarketcapTickerData, (p:any) => p.symbol == code);
+        let isTopCurrency = false;
+        if(_.find(topCoinmarketcapTickerData, (p:any) => p.symbol == code)) {
+          isTopCurrency = true;
+        }
+        
         if(currencyObj) {
           let total_supply = currencyObj.total_supply;
           chartQuoteVolumePersentage.push( (+p.quoteVolume / +total_supply) * 100 );
         } else {
-          chartQuoteVolumePersentage.push(0);
+          chartQuoteVolumePersentage.push(-1); // not found
         }
+        
+        // --
+        
+        if(isTopCurrency) {
+          chartBaseVolume.push({
+            y: +p.baseVolume,
+            color: "#FFFF00", // pink
+            name: code
+          });
+          
+        } else {
+          chartBaseVolume.push( +p.baseVolume );
+        }
+        
+        chartQuoteVolume.push( +p.quoteVolume );
+        
       });
       
       /**
@@ -61,31 +97,35 @@ export class CurrencyListComponent implements OnInit {
        */
       this.chartStock = {
         chart: {
-            type: 'column'
+          type: 'column'
         },
-        // title: {
-            // text: 'Monthly Average Rainfall'
-        // },
+        title: {
+          text: '24h Volume'
+        },
         // subtitle: {
-            // text: 'Source: WorldClimate com'
+          // text: 'Source: WorldClimate com'
         // },
         xAxis: {
-            categories: categories,
-            crosshair: true
+          categories: categories,
+          crosshair: true
         },
-        // yAxis: {
-            // min: 0,
-            // title: {
-                // text: 'Rainfall (mm)'
-            // }
-        // },
+        yAxis: {
+          min: 10,
+          title: {
+            text: 'Volume'
+          },
+          type: 'logarithmic',
+          tickAmount: 10,
+          minTickInterval: 1,
+          minorTickInterval: null,
+        },
         tooltip: {
-            // headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-            // pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-                // '<td style="padding:0"><b>{point.y:.1f} mm</b></td></tr>',
-            // footerFormat: '</table>',
-            shared: true,
-            useHTML: true
+          // headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+          // pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+              // '<td style="padding:0"><b>{point.y:.1f} mm</b></td></tr>',
+          // footerFormat: '</table>',
+          shared: true,
+          useHTML: true
         },
         // plotOptions: {
             // column: {
@@ -94,17 +134,17 @@ export class CurrencyListComponent implements OnInit {
             // }
         // },
         series: [{
-            name: 'Base Volume',
-            data: chartBaseVolume
-
+          name: 'Quote Volume %',
+          data: chartQuoteVolumePersentage,
+          color: '#FF0000'
         }, {
-            name: 'Quote Volume',
-            data: chartQuoteVolume
-
+          name: 'Quote Volume',
+          data: chartQuoteVolume,
+          color: '#85baec'
         }, {
-            name: 'Quote Volume Persentage',
-            data: chartQuoteVolumePersentage
-
+          name: 'Volume',
+          data: chartBaseVolume,
+          color: '#97e787'
         }]
       };
       
@@ -115,7 +155,7 @@ export class CurrencyListComponent implements OnInit {
       var price_usd : Array<number> = [];
       var price_btc : Array<number> = [];
       
-      _.each(coinmarketcapTickerData, (p:any) => {
+      _.each(topCoinmarketcapTickerData, (p:any) => {
         categories.push(p.name + ' [' + p.symbol + ']');
         market_cap_usd.push(+p.market_cap_usd);
         _24h_volume_usd.push(+p['24h_volume_usd']);
@@ -129,32 +169,41 @@ export class CurrencyListComponent implements OnInit {
        */
       this.chartCap = {
         chart: {
-            type: 'column'
+          type: 'column'
+        },
+        title: {
+          text: 'Currencies'
         },
         xAxis: {
-            categories: categories,
-            crosshair: true
+          categories: categories,
+          crosshair: true
+        },
+        yAxis: {
+          min: 0.1,
+          title: {
+            text: 'Volume'
+          },
+          type: 'logarithmic',
+          tickAmount: 10,
+          minTickInterval: 1,
+          minorTickInterval: null,
         },
         tooltip: {
-            shared: true,
-            useHTML: true
+          shared: true,
+          useHTML: true
         },
         series: [{
-            name: 'Market Cap USD',
-            data: market_cap_usd
-
+          name: 'Market Cap USD',
+          data: market_cap_usd
         }, {
-            name: '24h volume USD',
-            data: _24h_volume_usd
-
+          name: '24h volume USD',
+          data: _24h_volume_usd
         }, {
-            name: 'Price USD',
-            data: price_usd
-
+          name: 'Price USD',
+          data: price_usd
         }, {
-            name: 'Price BTC',
-            data: price_btc
-
+          name: 'Price BTC',
+          data: price_btc
         }]
       };
     });
