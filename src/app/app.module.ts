@@ -7,15 +7,20 @@ import { FormsModule } from '@angular/forms';
 import { TabsModule, ButtonsModule } from 'ng2-bootstrap';
 import { Ng2HighchartsModule } from 'ng2-highcharts';
 
+// services:
+import { PoloniexApiService } from './services/poloniex-api.service';
+import { BittrexApiService } from './services/bittrex-api.service';
+import { CoinmarketcapApiService } from './services/coinmarketcap-api.service';
+// components:
 import { AppComponent } from './app.component';
 import { RadarChartCurrencyComponent } from './radar-chart-currency/radar-chart-currency.component';
-
-import { PoloniexApiService } from './poloniex-api.service';
+import { CurrencyListComponent } from './currency-list/currency-list.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    RadarChartCurrencyComponent
+    RadarChartCurrencyComponent,
+    CurrencyListComponent
   ],
   imports: [
     BrowserModule,
@@ -27,15 +32,15 @@ import { PoloniexApiService } from './poloniex-api.service';
     ButtonsModule.forRoot(),
     RouterModule.forRoot([
       {
-        path: '',
-        component: RadarChartCurrencyComponent
+        path: '', // currency-list
+        component: CurrencyListComponent
       }, {
         path: 'radar-chart-currency',
         component: RadarChartCurrencyComponent
       }
     ])
   ],
-  providers: [ PoloniexApiService ],
+  providers: [ PoloniexApiService, BittrexApiService, CoinmarketcapApiService ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

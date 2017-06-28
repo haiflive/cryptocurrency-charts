@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { PoloniexApiService } from '../poloniex-api.service';
+import { PoloniexApiService } from '../services/poloniex-api.service';
 import { Observable } from 'rxjs/Rx';
 import * as _ from "lodash";
 import { Http } from '@angular/http';
@@ -47,9 +47,9 @@ const COINS = [
     name: 'LBRY Credits',
     img: 'library-credit'
   }, {
-    id: 'BTS',
-    name: 'BitShares',
-    img: 'bitshares'
+    id: 'USDT',
+    name: 'Tether',
+    img: 'tether'
   }
 ];
 
@@ -69,7 +69,7 @@ export class RadarChartCurrencyComponent implements OnInit {
     COINS.forEach((coin:{id: string, name:string, img:string}) => {
       this.items_select.push({
         id: coin.id,
-        text: `<img src='assets/images/currencies/${coin.img}.png' /> ${coin.name}`
+        text: `<img src='assets/images/currencies/${coin.img}.png' /> ${coin.name} [${coin.id}]`
       });
     });
     
@@ -149,7 +149,14 @@ export class RadarChartCurrencyComponent implements OnInit {
 
   private refreshChartData():void {
     
-    this._poloniexService.getMarketCyrrency(this.value_select.id, this._chartDepth).then((data) => {
+    let cyrrency_code:string = this.value_select.id;
+    let cyrrency_initial_code:string = 'BTC';
+    if(this.value_select.id == 'USDT') {
+      cyrrency_code = 'BTC';
+      cyrrency_initial_code = this.value_select.id;
+    }
+    
+    this._poloniexService.getMarketCyrrency(cyrrency_code, this._chartDepth, cyrrency_initial_code).then((data) => {
         var result : any;
         
         if(this._chartGrouping) {
@@ -158,7 +165,10 @@ export class RadarChartCurrencyComponent implements OnInit {
           result = this.prepareDepthDataLinear(data);
         }
         
-        // chart 2
+        /**
+         *  @chartStock
+         *  @API - http://api.highcharts.com/highcharts/
+         */
         this.chartStock = {
           chart: {
             type: 'line'
