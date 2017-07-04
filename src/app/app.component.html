@@ -19,6 +19,11 @@
   </li>
 </ul>
 -->
-<a routerLink="/">home</a>
-<a routerLink="/radar-chart-currency">charts</a>
+<ul class="nav nav-pills">
+  <li role="presentation" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"><a routerLink="">home</a></li>
+  <li role="presentation" routerLinkActive="active"><a routerLink="/currency-monitor">Currency Monitor</a></li>
+  <li role="presentation" routerLinkActive="active"><a routerLink="/radar-chart-currency">Charts</a></li>
+  <li role="presentation" routerLinkActive="active"><a routerLink="/cyclic-exchange">Cyclic Exchange</a></li>
+</ul>
+
 <router-outlet></router-outlet>

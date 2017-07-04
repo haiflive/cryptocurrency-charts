@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { PoloniexApiService } from '../services/poloniex-api.service';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Ng2Highcharts, Ng2Highmaps, Ng2Highstocks } from 'ng2-highcharts';
 import { Observable } from 'rxjs/Rx';
 import * as _ from "lodash";
-import {Ng2Highcharts, Ng2Highmaps, Ng2Highstocks} from 'ng2-highcharts';
+import { PoloniexApiService } from '../services/poloniex-api.service';
 
 const COINS = [
   {
@@ -52,19 +52,109 @@ const COINS = [
   }
 ];
 
+/**
+ *  @chartStock
+ *  @API - http://api.highcharts.com/highcharts/
+ */
+const _ChartStock_prototype = {
+  chart: {
+    // renderTo: (options.chart && options.chart.renderTo) || this,
+    backgroundColor: null,
+    borderWidth: 0,
+    type: 'area',
+    margin: [2, 0, 2, 0],
+    width: 120,
+    height: 20,
+    style: {
+        overflow: 'visible'
+    },
+
+    // small optimalization, saves 1-2 ms each sparkline
+    skipClone: true
+  },
+  title: {
+    text: ''
+  },
+  credits: {
+    enabled: false
+  },
+  xAxis: {
+    labels: {
+      enabled: false
+    },
+    title: {
+      text: null
+    },
+    startOnTick: false,
+    endOnTick: false,
+    tickPositions: []
+  },
+  yAxis: {
+    endOnTick: false,
+    startOnTick: false,
+    labels: {
+      enabled: false
+    },
+    title: {
+      text: null
+    },
+    tickPositions: [0]
+  },
+  legend: {
+    enabled: false
+  },
+  tooltip: {
+    backgroundColor: null,
+    borderWidth: 0,
+    shadow: false,
+    useHTML: true,
+    hideDelay: 0,
+    shared: true,
+    padding: 0,
+    positioner: function (w, h, point) {
+      return { x: point.plotX - w / 2, y: point.plotY - h };
+    },
+    headerFormat: ''
+  },
+  plotOptions: {
+    series: {
+      animation: false,
+      lineWidth: 1,
+      shadow: false,
+      states: {
+        hover: {
+          lineWidth: 1
+        }
+      },
+      marker: {
+        radius: 1,
+        states: {
+          hover: {
+            radius: 2
+          }
+        }
+      },
+      fillOpacity: 0.25
+    },
+    column: {
+      negativeColor: '#910000',
+      borderColor: 'silver'
+    }
+  },
+  series: [] //result.chart_data
+};
+
 @Component({
-  selector: 'app-radar-chart-currency',
-  templateUrl: './radar-chart-currency.component.html',
-  styleUrls: ['./radar-chart-currency.component.css']
+  selector: 'app-currency-monitor',
+  templateUrl: './currency-monitor.component.html',
+  styleUrls: ['./currency-monitor.component.css'],
+  encapsulation: ViewEncapsulation.None
 })
-export class RadarChartCurrencyComponent implements OnInit {
-  
-  constructor(private _poloniexService:PoloniexApiService) {
-  }
+export class CurrencyMonitorComponent implements OnInit {
+
+  constructor(private _poloniexService:PoloniexApiService) { }
 
   ngOnInit() {
-    console.log('lodash version:', _.VERSION);
-    
     COINS.forEach((coin:{id: string, name:string, img:string}) => {
       this.items_select.push({
         id: coin.id,
@@ -72,18 +162,17 @@ export class RadarChartCurrencyComponent implements OnInit {
       });
     });
     
-    this.value_select = this.items_select[0];
-    
+    this.value_select = [this.items_select[0], this.items_select[6], this.items_select[8]];
     this.refreshChartData();
-    this.setupRefresher();
   }
   
   // ng2-highcharts
+  chartList = [];
   chartStock = {};
   
   // Select
   public items_select:Array<any> = [];
-  private value_select:any = {};
+  private value_select:Array<any> = [];
  
   public selected(value:any):void {
     console.log('Selected value is: ', value);
@@ -103,11 +192,12 @@ export class RadarChartCurrencyComponent implements OnInit {
   }
   // --
   
-  private _chartDepth:number = 50;
+  private _chartDepth:number = 100;
   private _chartThrottle:number = -1; // default disabled
   public _chartGrouping:boolean = true;
   private _chartGroupingDecimals:number = 9; // default 9 decimals
- 
+  
+  
   private get chartDepthV():number {
     return this._chartDepth;
   }
@@ -120,85 +210,56 @@ export class RadarChartCurrencyComponent implements OnInit {
     this.refreshChartData();
   }
   
-  private get chartThrottleV():number {
-    return this._chartThrottle;
-  }
- 
-  private set chartThrottleV(value:number) {
-    this._chartThrottle = value;
-    this.setupRefresher();
-  }
   
-  private get chartGroupingV():string {
-    return this._chartGrouping ? '1' : '0';
-  }
- 
-  private set chartGroupingV(value:string) {
-    this._chartGrouping = value === '1';
-    this.refreshChartData();
-  }
-  
-  private get chartGroupingDecimalsV():number {
-    return this._chartGroupingDecimals;
-  }
- 
-  private set chartGroupingDecimalsV(value:number) {
-    this._chartGroupingDecimals = value;
-    this.refreshChartData();
-  }
-  
-  // --
-
   private refreshChartData():void {
     
-    let cyrrency_code:string = this.value_select.id;
-    let cyrrency_initial_code:string = 'BTC';
-    if(this.value_select.id == 'USDT') {
-      cyrrency_code = 'BTC';
-      cyrrency_initial_code = this.value_select.id;
-    }
+    // setup currency list
+    this.chartList = []; // clear
     
-    this._poloniexService.getMarketCyrrency(cyrrency_code, this._chartDepth, cyrrency_initial_code).then((data) => {
-        var result : any;
-        
-        if(this._chartGrouping) {
-          result = this.prepareDepthDataGrouped(data, this._chartGroupingDecimals);
-        } else {
-          result = this.prepareDepthDataLinear(data);
-        }
-        
-        /**
-         *  @chartStock
-         *  @API - http://api.highcharts.com/highcharts/
-         */
-        this.chartStock = {
-          chart: {
-            type: 'line'
-          },
-          title: {
-            text: 'MARKET DEPTH'
-          },
-          xAxis: {
-            categories: result.chart_labels,
-            allowDecimals: true
-          },
-          yAxis: {
-            title: {
-              text: 'Coins'
-            }
-          },
-          tooltip: {
-            shared: true
-          },
-          plotOptions: {
-              line: {
-                  animation: false
-              }
-          },
-          series: result.chart_data
-        };
-    });
+    for(let i = 0; i < this.value_select.length; i++) {
+      let cyrrency_code = this.value_select[i].id;
+      let cyrrency_initial_code:string = 'BTC';
+      if(this.value_select[0].id == 'USDT') {
+        cyrrency_code = 'BTC';
+        cyrrency_initial_code = this.value_select[0].id;
+      }
+      
+      let coin = _.find(COINS, function(p) {
+        return cyrrency_code == p.id;
+      });
+      
+      if(!coin) {
+        console.error('can not find coin by ID: ' + cyrrency_code);
+        continue;
+      }
+      
+      this._poloniexService.getMarketCyrrency(cyrrency_code, this._chartDepth, cyrrency_initial_code).then((data) => {
+          var result : any;
+          
+          if(this._chartGrouping) {
+            result = this.prepareDepthDataGrouped(data, this._chartGroupingDecimals);
+          } else {
+            result = this.prepareDepthDataLinear(data);
+          }
+          
+          // simple charts:
+          var chart_stock = _.extend({}, _ChartStock_prototype);
+          // chart_stock.series = [{data: [10, 20, 0, i*10, 20], name: 'TET', type: 'spline'}];
+          chart_stock.series = result.chart_data;
+      
+          
+          this.chartList.push({
+            id: cyrrency_code,
+            name: `<img src='assets/images/currencies/${coin.img}.png' /> ${coin.name} [${coin.id}]`,
+            asks: chart_stock.series[4].data[0],
+            bids: chart_stock.series[4].data[chart_stock.series[4].data.length-1],
+            chartStock: chart_stock,
+          });
+          
+      });
+    };
   }
+  
   
   private prepareDepthDataLinear(data:any) : any {
       let chart_data_volume_btc: Array<number> = [];
@@ -278,35 +339,4 @@ export class RadarChartCurrencyComponent implements OnInit {
     
     return result;
   }
-  
-  
-  /**
-   *  refresh chart Throttle
-   */
-  private observableThrottle;
-  private observableThrottleSubscribe;
-  
-  private setupRefresher() : void {
-    if(!this._chartThrottle || this._chartThrottle < 0)
-      return;
-    
-    if(!this.observableThrottle) { // first call
-      this.observableThrottle = Observable.timer(500)
-            .switchMap((ev) => Observable.interval(+this._chartThrottle * 1000));
-            // .catch(this.handleError)
-    } else {
-      this.observableThrottle.switchMap((ev) => Observable.interval(+this._chartThrottle * 1000));
-    }
-    
-    if(this.observableThrottleSubscribe) {
-      this.observableThrottleSubscribe.unsubscribe();
-    }
-    
-    this.observableThrottleSubscribe = this.observableThrottle.subscribe(() => {
-          this.refreshChartData();
-      })
-    
-    return;
-  }
-  
 }
