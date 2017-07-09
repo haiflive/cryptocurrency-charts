@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { PoloniexApiService } from '../services/poloniex-api.service';
+import { BittrexApiService } from '../services/bittrex-api.service';
 import { Observable } from 'rxjs/Rx';
 import * as _ from "lodash";
 import {Ng2Highcharts, Ng2Highmaps, Ng2Highstocks} from 'ng2-highcharts';
@@ -59,11 +60,12 @@ const COINS = [
 })
 export class RadarChartCurrencyComponent implements OnInit {
   
-  constructor(private _poloniexService:PoloniexApiService) {
-  }
+  constructor(
+    private _poloniexService:PoloniexApiService,
+    private _bittrexApiService:BittrexApiService
+  ) {}
 
   ngOnInit() {
-    console.log('lodash version:', _.VERSION);
     
     COINS.forEach((coin:{id: string, name:string, img:string}) => {
       this.items_select.push({
@@ -72,7 +74,15 @@ export class RadarChartCurrencyComponent implements OnInit {
       });
     });
     
+    this.stock_exchange_list.forEach((stock:{id:string, name:string, url:string}) => {
+      this.stock_exchange_select.push({
+        id: stock.id,
+        text: `${stock.name} [${stock.url}]`
+      });
+    });
+    
     this.value_select = this.items_select[0];
+    this.value_stock_select = this.stock_exchange_select[0];
     
     this.refreshChartData();
     this.setupRefresher();
@@ -81,7 +91,29 @@ export class RadarChartCurrencyComponent implements OnInit {
   // ng2-highcharts
   chartStock = {};
   
-  // Select
+  
+  private stock_exchange_list:Array<any> = [{
+      id: 'poloniex',
+      name: `poloniex.com`,
+      url: 'poloniex.com',
+      provider: this._poloniexService
+    }, {
+      id: 'bittrex',
+      name: `bittrex.com`,
+      url: 'bittrex.com',
+      provider: this._bittrexApiService
+  }];
+  
+  // Select Currency Source
+  public stock_exchange_select:Array<any> = [];
+  private value_stock_select:any = {};
+  
+  public refreshStock(value:any):void {
+    this.value_stock_select = value;
+    this.refreshChartData();
+  }
+  
+  // Select coin
   public items_select:Array<any> = [];
   private value_select:any = {};
  
@@ -158,7 +190,9 @@ export class RadarChartCurrencyComponent implements OnInit {
       cyrrency_initial_code = this.value_select.id;
     }
     
-    this._poloniexService.getMarketCyrrency(cyrrency_code, this._chartDepth, cyrrency_initial_code).then((data) => {
+    var stock = _.find(this.stock_exchange_list, (p) => p.id == this.value_stock_select.id);
+    
+    stock.provider.getMarketCyrrency(cyrrency_code, this._chartDepth, cyrrency_initial_code).then((data) => {
         var result : any;
         
         if(this._chartGrouping) {
