@@ -50,6 +50,10 @@ const COINS = [
     id: 'USDT',
     name: 'Tether',
     img: 'tether'
+  }, {
+    id: 'MUSIC',
+    name: 'Musicoin',
+    img: 'musicoin'
   }
 ];
 
@@ -106,7 +110,7 @@ export class RadarChartCurrencyComponent implements OnInit {
   
   // Select Currency Source
   public stock_exchange_select:Array<any> = [];
-  private value_stock_select:any = {};
+  public value_stock_select:any = {};
   
   public refreshStock(value:any):void {
     this.value_stock_select = value;
@@ -115,7 +119,7 @@ export class RadarChartCurrencyComponent implements OnInit {
   
   // Select coin
   public items_select:Array<any> = [];
-  private value_select:any = {};
+  public value_select:any = {};
  
   public selected(value:any):void {
     console.log('Selected value is: ', value);
@@ -140,11 +144,11 @@ export class RadarChartCurrencyComponent implements OnInit {
   public _chartGrouping:boolean = true;
   private _chartGroupingDecimals:number = 9; // default 9 decimals
  
-  private get chartDepthV():number {
+  public get chartDepthV():number {
     return this._chartDepth;
   }
  
-  private set chartDepthV(value:number) {
+  public set chartDepthV(value:number) {
     if(this._chartDepth == value)
       return;
     
@@ -152,29 +156,29 @@ export class RadarChartCurrencyComponent implements OnInit {
     this.refreshChartData();
   }
   
-  private get chartThrottleV():number {
+  public get chartThrottleV():number {
     return this._chartThrottle;
   }
  
-  private set chartThrottleV(value:number) {
+  public set chartThrottleV(value:number) {
     this._chartThrottle = value;
     this.setupRefresher();
   }
   
-  private get chartGroupingV():string {
+  public get chartGroupingV():string {
     return this._chartGrouping ? '1' : '0';
   }
  
-  private set chartGroupingV(value:string) {
+  public set chartGroupingV(value:string) {
     this._chartGrouping = value === '1';
     this.refreshChartData();
   }
   
-  private get chartGroupingDecimalsV():number {
+  public get chartGroupingDecimalsV():number {
     return this._chartGroupingDecimals;
   }
  
-  private set chartGroupingDecimalsV(value:number) {
+  public set chartGroupingDecimalsV(value:number) {
     this._chartGroupingDecimals = value;
     this.refreshChartData();
   }

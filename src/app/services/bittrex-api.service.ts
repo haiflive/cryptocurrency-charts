@@ -9,6 +9,8 @@ import * as _ from "lodash";
 
 import 'rxjs/add/operator/toPromise';
 
+const SOURCE_URL = 'http://cchart.haiflive.ru';
+
 @Injectable()
 export class BittrexApiService {
 
@@ -26,7 +28,7 @@ export class BittrexApiService {
     
     // const url = `https://bittrex.com/api/v1.1/public/getorderbook?market=`+cyrrency_initial_code+`-`+cyrrency_code+`&type=both&depth=`+chart_depth;
     // proxy request allow cross domain requests
-    const url = `http://localhost:5000/api/bittrex/public/getorderbook?market=`+cyrrency_initial_code+`-`+cyrrency_code+`&type=both&depth=`+chart_depth;
+    const url = SOURCE_URL + `/api/bittrex/public/getorderbook?market=`+cyrrency_initial_code+`-`+cyrrency_code+`&type=both&depth=`+chart_depth;
     
     return this.http.get(url)
             .toPromise()

@@ -172,7 +172,7 @@ export class CurrencyMonitorComponent implements OnInit {
   
   // Select
   public items_select:Array<any> = [];
-  private value_select:Array<any> = [];
+  public value_select:Array<any> = [];
  
   public selected(value:any):void {
     console.log('Selected value is: ', value);
@@ -198,11 +198,11 @@ export class CurrencyMonitorComponent implements OnInit {
   private _chartGroupingDecimals:number = 9; // default 9 decimals
   
   
-  private get chartDepthV():number {
+  public get chartDepthV():number {
     return this._chartDepth;
   }
  
-  private set chartDepthV(value:number) {
+  public set chartDepthV(value:number) {
     if(this._chartDepth == value)
       return;
     

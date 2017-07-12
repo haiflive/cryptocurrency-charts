@@ -21,11 +21,11 @@ export class CurrencyListComponent implements OnInit {
   // --
   private topCoinLimit:number = 20;
   
-  private get topCoinLimitV():number {
+  public get topCoinLimitV():number {
     return this.topCoinLimit;
   }
  
-  private set topCoinLimitV(value:number) {
+  public set topCoinLimitV(value:number) {
     this.topCoinLimit = value;
     this.refreshChartData();
   }
