@@ -4,19 +4,22 @@ import { RouterModule }   from '@angular/router';
 import { HttpModule }    from '@angular/http';
 import { SelectModule } from 'ng2-select-compat'
 import { FormsModule } from '@angular/forms';
-import { TabsModule, ButtonsModule } from 'ngx-bootstrap';
+import { TabsModule, ButtonsModule, ModalModule } from 'ngx-bootstrap';
 import { Ng2HighchartsModule } from 'ng2-highcharts';
 
 // services:
 import { PoloniexApiService } from './services/poloniex-api.service';
 import { BittrexApiService } from './services/bittrex-api.service';
 import { CoinmarketcapApiService } from './services/coinmarketcap-api.service';
+import { TraderBotService } from './services/trader-bot.service';
 // components:
 import { AppComponent } from './app.component';
 import { RadarChartCurrencyComponent } from './radar-chart-currency/radar-chart-currency.component';
 import { CurrencyListComponent } from './currency-list/currency-list.component';
 import { CurrencyMonitorComponent } from './currency-monitor/currency-monitor.component';
 import { CyclicExchangeComponent } from './cyclic-exchange/cyclic-exchange.component';
+import { TraderBotManagerComponent } from './trader-bot-manager/trader-bot-manager.component';
+import { CreateTraderModalComponent } from './trader-bot-manager/create-trader.modal.component';
 
 @NgModule({
   declarations: [
@@ -24,8 +27,11 @@ import { CyclicExchangeComponent } from './cyclic-exchange/cyclic-exchange.compo
     RadarChartCurrencyComponent,
     CurrencyListComponent,
     CurrencyMonitorComponent,
-    CyclicExchangeComponent
+    CyclicExchangeComponent,
+    TraderBotManagerComponent,
+    CreateTraderModalComponent,
   ],
+  entryComponents: [CreateTraderModalComponent],
   imports: [
     BrowserModule,
     HttpModule,
@@ -34,6 +40,7 @@ import { CyclicExchangeComponent } from './cyclic-exchange/cyclic-exchange.compo
     Ng2HighchartsModule,
     TabsModule.forRoot(),
     ButtonsModule.forRoot(),
+    ModalModule.forRoot(),
     RouterModule.forRoot([
       {
         path: '', // currency-list
@@ -47,10 +54,14 @@ import { CyclicExchangeComponent } from './cyclic-exchange/cyclic-exchange.compo
       }, {
         path: 'cyclic-exchange',
         component: CyclicExchangeComponent
+      }, {
+        path: 'trader-bot-manager',
+        component: TraderBotManagerComponent
       }
     ])
   ],
-  providers: [ PoloniexApiService, BittrexApiService, CoinmarketcapApiService ],
+  providers: [ PoloniexApiService, BittrexApiService, CoinmarketcapApiService,
+               TraderBotService ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

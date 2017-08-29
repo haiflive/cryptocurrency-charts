@@ -1,0 +1,107 @@
+<div class="col-md-12">
+  <br>
+  <div class="row">
+    <div class="col-md-3">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          Bots List
+          <div (click)="createBot()"
+            class="btn btn-default btn-xs pull-right"><i class="fa fa-plus text-success"></i> Add</div>
+        </div>
+        <div class="panel-body">
+          <div class="list-group">
+            <a *ngFor="let bot of data.bots"
+                (click)="selectBot(bot.uid)"
+                [ngClass]="{'active' : bot._isSelected}"
+                href="javascript:void(0)" class="list-group-item"
+              >#{{bot.id}} {{bot.name}} <i (click)="removeBot(bot.id)" class="fa fa-remove text-danger pull-right"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          bot information
+        </div>
+        <div class="panel-body">
+          <div [ng2-highstocks]="chartStock" class="graph"></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          bot options
+        </div>
+        <div class="panel-body">
+          <div class="row">
+            <label class="col-md-12">Name</label>
+            <div class="col-md-12">
+              <input type="text" class="form-control" [(ngModel)]="botName" />
+            </div>
+          </div>
+          <div class="row">
+            <label class="col-md-12">API key</label>
+            <div class="col-md-12">
+              <input type="text" class="form-control" [ngModel]="botApiKey" disabled />
+            </div>
+          </div>
+          <hr>
+          <div class="row">
+            <label class="col-md-12">&nbsp;</label>
+            <div class="col-md-12">
+              <button type="button" class="btn pull-right"
+                  [(ngModel)]="chartGroupingV" btnCheckbox
+                  [ngClass]="{'btn-success' : chartGroupingV === '1'}"
+                  btnCheckboxTrue="1" btnCheckboxFalse="0" ngDefaultControl>
+                  {{chartGroupingV === '1' ? 'Trading' : 'Disabled'}}
+              </button>
+              <button type="button" class="btn btn-success" (click)="applyBotSettings()">
+                  Save
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+</div>
+
+<div class="col-md-12">
+  <br>
+  <div class="row">
+    <div class="col-md-3">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          Balance
+        </div>
+        <div class="panel-body">
+          Balance list
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          Trade History
+        </div>
+        <div class="panel-body">
+          Tarade List
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          Bot Current Orders
+        </div>
+        <div class="panel-body">
+          Order List
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
