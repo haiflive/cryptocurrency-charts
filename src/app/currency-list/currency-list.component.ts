@@ -4,6 +4,7 @@ import { CoinmarketcapApiService } from '../services/coinmarketcap-api.service';
 import * as _ from "lodash";
 import { Ng2Highcharts, Ng2Highmaps, Ng2Highstocks } from 'ng2-highcharts';
 import { Observable } from 'rxjs/Observable';
+import { LoaderWaitService } from '../services/loader-wait.service';
 
 @Component({
   selector: 'app-currency-list',
@@ -12,10 +13,15 @@ import { Observable } from 'rxjs/Observable';
 })
 export class CurrencyListComponent implements OnInit {
 
-  constructor(private _poloniexService:PoloniexApiService, private _coinmarketcapService:CoinmarketcapApiService) { }
+  constructor(
+    private _poloniexService:PoloniexApiService,
+    private _coinmarketcapService:CoinmarketcapApiService,
+    private loaderWait: LoaderWaitService
+  ) { }
 
   ngOnInit() {
     this.refreshChartData();
+    this.loaderWait.hide();
   }
   
   // --

@@ -3,6 +3,7 @@ import { Ng2Highcharts, Ng2Highmaps, Ng2Highstocks } from 'ng2-highcharts';
 import { Observable } from 'rxjs/Rx';
 import * as _ from "lodash";
 import { PoloniexApiService } from '../services/poloniex-api.service';
+import { LoaderWaitService } from '../services/loader-wait.service';
 
 const COINS = [
   {
@@ -152,7 +153,10 @@ const _ChartStock_prototype = {
 })
 export class CurrencyMonitorComponent implements OnInit {
 
-  constructor(private _poloniexService:PoloniexApiService) { }
+  constructor(
+    private _poloniexService:PoloniexApiService,
+    private loaderWait: LoaderWaitService
+  ) { }
 
   ngOnInit() {
     COINS.forEach((coin:{id: string, name:string, img:string}) => {
@@ -164,6 +168,7 @@ export class CurrencyMonitorComponent implements OnInit {
     
     this.value_select = [this.items_select[0], this.items_select[6], this.items_select[8]];
     this.refreshChartData();
+    this.loaderWait.hide();
   }
   
   // ng2-highcharts

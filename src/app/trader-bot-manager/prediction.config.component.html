@@ -1,0 +1,63 @@
+<div class="row">
+  <label class="col-md-7">Reorder Time [ms]</label>
+  <div class="col-md-5">
+    <input [(ngModel)]="config.reorder_time" type="text" class="form-control input-sm" placeholder="3600000" />
+  </div>
+</div>
+
+<div class="row">
+  <label class="col-md-7">Prediction Time [ms]</label>
+  <div class="col-md-5">
+    <input [(ngModel)]="config.prediction_time" type="text" class="form-control input-sm" placeholder="3600000" />
+  </div>
+</div>
+
+<div class="row">
+  <label class="col-md-7">Supply [%]</label>
+  <div class="col-md-5">
+    <input [(ngModel)]="config.percentage_supply" type="text" class="form-control input-sm" placeholder="30" />
+  </div>
+</div>
+
+<div class="row">
+  <label class="col-md-7">Buy [%]</label>
+  <div class="col-md-5">
+    <input [(ngModel)]="config.percentage_buy" type="text" class="form-control input-sm" placeholder="-1.5"/>
+  </div>
+</div>
+
+<div class="row">
+  <label class="col-md-7">Sell [%]</label>
+  <div class="col-md-5">
+    <input [(ngModel)]="config.percentage_sell" type="text" class="form-control input-sm" placeholder="2.5" />
+  </div>
+</div>
+
+<div class="row">
+  <label class="col-md-7">Equilibration</label>
+  <div class="col-md-5">
+    <input [(ngModel)]="config.balance" type="text" class="form-control input-sm" placeholder="50" />
+  </div>
+</div>
+
+<div class="row">
+  <label class="col-md-7">Order Book Depth</label>
+  <div class="col-md-5">
+    <input [(ngModel)]="config.order_book_depth" type="text" class="form-control input-sm" placeholder="50" />
+  </div>
+</div>
+
+<legend>Triggers List <button (click)="addTrigger()"
+          type="button"
+          class="btn btn-default btn-xs"
+        ><i class="fa fa-plus text-success"></i>&nbsp;Add Trigger</button></legend>
+<div class="row" *ngFor="let trigger of config.triggers; let i=index" style="padding-bottom: 7px;">
+  <div class="col-md-12">
+    <div class="breadcrumb">
+      #&nbsp;{{i+1}}&nbsp;<div (click)="removeTrigger(trigger)" class="pull-right" style="cursor:pointer;"><i class="fa fa-remove text-danger"></i></div>
+    </div>
+  </div>
+  <div class="col-md-12">
+    <prediction-trigger-content [trigger-config]="trigger"></prediction-trigger-content>
+  </div>
+</div>

@@ -18,6 +18,8 @@ import 'rxjs/add/operator/toPromise';
  *  https://poloniex.com/public?command=returnOrderBook&currencyPair=BTC_XMR
  */
 
+const BASE_URL = `https://poloniex.com/public`;
+
 @Injectable()
 export class PoloniexApiService {
 
@@ -32,7 +34,7 @@ export class PoloniexApiService {
         return Promise.resolve(JSON.parse(this.testResponseData));
     }
     
-    const url = `https://poloniex.com/public?command=returnOrderBook&currencyPair=`+cyrrency_initial_code+`_`+cyrrency_code+`&depth=`+chart_depth;
+    const url = BASE_URL + `?command=returnOrderBook&currencyPair=`+cyrrency_initial_code+`_`+cyrrency_code+`&depth=`+chart_depth;
     
     return this.http.get(url)
             .toPromise()
@@ -41,7 +43,7 @@ export class PoloniexApiService {
   }
   
   public getCyrrencyList() : Promise<any> {
-    const url = `https://poloniex.com/public?command=returnCurrencies`;
+    const url = BASE_URL + `?command=returnCurrencies`;
     
     return this.http.get(url)
             .toPromise()
@@ -50,7 +52,7 @@ export class PoloniexApiService {
   }
   
   public getReturnTicker() : Promise<any> {
-    const url = `https://poloniex.com/public?command=returnTicker`;
+    const url = BASE_URL + `?command=returnTicker`;
     
     return this.http.get(url)
             .toPromise()

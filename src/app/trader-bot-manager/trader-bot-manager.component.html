@@ -1,7 +1,7 @@
-<div class="col-md-12">
-  <br>
+<br>
+<div class="col-md-9">
   <div class="row">
-    <div class="col-md-3">
+    <div class="col-md-4">
       <div class="panel panel-default">
         <div class="panel-heading">
           Bots List
@@ -10,96 +10,134 @@
         </div>
         <div class="panel-body">
           <div class="list-group">
-            <a *ngFor="let bot of data.bots"
-                (click)="selectBot(bot.uid)"
-                [ngClass]="{'active' : bot._isSelected}"
+            <a *ngFor="let bot of traderBotList; let i = index"
+                (click)="selectBot(i)"
+                [ngClass]="{'active' : selectedBotIndex == i}"
                 href="javascript:void(0)" class="list-group-item"
-              >#{{bot.id}} {{bot.name}} <i (click)="removeBot(bot.id)" class="fa fa-remove text-danger pull-right"></i></a>
+              >#{{bot.id}} {{bot.name}} [{{bot.currency_pair}}] <i (click)="removeBot(bot.uid)" class="fa fa-remove text-danger pull-right"></i></a>
           </div>
         </div>
       </div>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-8">
       <div class="panel panel-default">
         <div class="panel-heading">
-          bot information
+          &nbsp;<span *ngIf="selectedBot">{{selectedBot.name}} ({{selectedBot.stock_id}}) - [{{selectedBot.currency_pair}}]</span>
+          <div class="pull-right">7d: <span
+              [ngClass]="{'text-success' : change7d > 0,'text-danger' : change7d < 0}">{{change7d}}%</span></div>
+          <div class="pull-right">24h: <span
+              [ngClass]="{'text-success' : change24h > 0,'text-danger' : change24h < 0}">{{change24h}}%</span>,&nbsp;</div>
+          <div class="pull-right">1h: <span
+              [ngClass]="{'text-success' : change1h > 0,'text-danger' : change1h < 0}">{{change1h}}%</span>,&nbsp;</div>
         </div>
         <div class="panel-body">
           <div [ng2-highstocks]="chartStock" class="graph"></div>
         </div>
       </div>
     </div>
-    <div class="col-md-3">
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          bot options
-        </div>
-        <div class="panel-body">
-          <div class="row">
-            <label class="col-md-12">Name</label>
-            <div class="col-md-12">
-              <input type="text" class="form-control" [(ngModel)]="botName" />
-            </div>
-          </div>
-          <div class="row">
-            <label class="col-md-12">API key</label>
-            <div class="col-md-12">
-              <input type="text" class="form-control" [ngModel]="botApiKey" disabled />
-            </div>
-          </div>
-          <hr>
-          <div class="row">
-            <label class="col-md-12">&nbsp;</label>
-            <div class="col-md-12">
-              <button type="button" class="btn pull-right"
-                  [(ngModel)]="chartGroupingV" btnCheckbox
-                  [ngClass]="{'btn-success' : chartGroupingV === '1'}"
-                  btnCheckboxTrue="1" btnCheckboxFalse="0" ngDefaultControl>
-                  {{chartGroupingV === '1' ? 'Trading' : 'Disabled'}}
-              </button>
-              <button type="button" class="btn btn-success" (click)="applyBotSettings()">
-                  Save
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
-
   
-</div>
-
-<div class="col-md-12">
-  <br>
   <div class="row">
-    <div class="col-md-3">
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          Balance
-        </div>
-        <div class="panel-body">
-          Balance list
-        </div>
-      </div>
-    </div>
-    <div class="col-md-6">
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          Trade History
-        </div>
-        <div class="panel-body">
-          Tarade List
-        </div>
-      </div>
-    </div>
-    <div class="col-md-3">
+    <div class="col-md-4">
       <div class="panel panel-default">
         <div class="panel-heading">
           Bot Current Orders
         </div>
         <div class="panel-body">
           Order List
+        </div>
+      </div>
+    </div>
+    <div class="col-md-8">
+      <div class="panel panel-default">
+        <div class="panel-heading">Order Book Depth</div>
+        <div class="panel-body">
+          <div [ng2-highcharts]="orderBookDepth" class="graph"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-md-4">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          Balance
+        </div>
+        <div class="panel-body">
+          <ul>
+            <li *ngFor="let balance of balances">[{{balance.name}}]: {{balance.value}}</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-8">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          Trade History
+        </div>
+        <div class="panel-body">
+          <table class="table table-striped">
+            <tr>
+              <th style="width:20px;"></th>
+              <th>Total</th>
+              <th>Fee</th>
+              <th>Rate</th>
+              <th>Date</th>
+            </tr>
+            <tr *ngFor="let trade of trade_history">
+              <td><i class ="fa" [ngClass]="{
+                'fa-plus text-success' : trade.type == 'sell',
+                'fa-minus text-danger' : trade.type == 'buy'
+              }"></i></td>
+              <td>{{trade.total}}</td>
+              <td>{{trade.fee}}</td>
+              <td>{{trade.rate}}</td>
+              <td>{{trade.date}}</td>
+            <tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      
+    </div>
+  </div>
+  
+</div>
+<div class="col-md-3">
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      Options <span *ngIf="selectedBot">[{{selectedBot.name}} ({{selectedBot.stock_id}}) {{selectedBot.currency_pair}}]</span>
+    </div>
+    <div class="panel-body">
+      <div class="row">
+        <label class="col-md-12">Name</label>
+        <div class="col-md-12">
+          <input type="text" class="form-control" [(ngModel)]="botName" />
+        </div>
+      </div>
+      <div class="row">
+        <label class="col-md-12">API key</label>
+        <div class="col-md-12">
+          <input type="text" class="form-control" [ngModel]="botApiKey" disabled />
+        </div>
+      </div>
+      <legend>Options</legend>
+      <prediction-content *ngIf="bot_config" [bot-config]="bot_config"></prediction-content>
+      <hr>
+      <div class="row">
+        <label class="col-md-12">&nbsp;</label>
+        <div class="col-md-12">
+          <button type="button" class="btn pull-right"
+              [(ngModel)]="chartGroupingV" btnCheckbox
+              [ngClass]="{'btn-success' : chartGroupingV === '1'}"
+              btnCheckboxTrue="1" btnCheckboxFalse="0" ngDefaultControl>
+              {{chartGroupingV === '1' ? 'Trading' : 'Disabled'}}
+          </button>
+          <button type="button" class="btn btn-success" (click)="updateBotSettings()">
+              Save
+          </button>
         </div>
       </div>
     </div>

@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { LoaderWaitService } from '../services/loader-wait.service';
 
 @Component({
   selector: 'app-cyclic-exchange',
@@ -7,9 +8,12 @@ import { Component, OnInit } from '@angular/core';
 })
 export class CyclicExchangeComponent implements OnInit {
 
-  constructor() { }
+  constructor(
+    private loaderWait: LoaderWaitService
+  ) {}
 
   ngOnInit() {
+    this.loaderWait.hide();
   }
 
 }

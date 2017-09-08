@@ -4,7 +4,7 @@ import { RouterModule }   from '@angular/router';
 import { HttpModule }    from '@angular/http';
 import { SelectModule } from 'ng2-select-compat'
 import { FormsModule } from '@angular/forms';
-import { TabsModule, ButtonsModule, ModalModule } from 'ngx-bootstrap';
+import { TabsModule, ButtonsModule, ModalModule, BsDropdownModule } from 'ngx-bootstrap';
 import { Ng2HighchartsModule } from 'ng2-highcharts';
 
 // services:
@@ -12,6 +12,7 @@ import { PoloniexApiService } from './services/poloniex-api.service';
 import { BittrexApiService } from './services/bittrex-api.service';
 import { CoinmarketcapApiService } from './services/coinmarketcap-api.service';
 import { TraderBotService } from './services/trader-bot.service';
+import { LoaderWaitService } from './services/loader-wait.service';
 // components:
 import { AppComponent } from './app.component';
 import { RadarChartCurrencyComponent } from './radar-chart-currency/radar-chart-currency.component';
@@ -20,6 +21,8 @@ import { CurrencyMonitorComponent } from './currency-monitor/currency-monitor.co
 import { CyclicExchangeComponent } from './cyclic-exchange/cyclic-exchange.component';
 import { TraderBotManagerComponent } from './trader-bot-manager/trader-bot-manager.component';
 import { CreateTraderModalComponent } from './trader-bot-manager/create-trader.modal.component';
+import { PredictionConfigComponent } from './trader-bot-manager/prediction.config.component';
+import { PredictionTriggerComponent } from './trader-bot-manager/prediction.trigger.component';
 
 @NgModule({
   declarations: [
@@ -30,8 +33,10 @@ import { CreateTraderModalComponent } from './trader-bot-manager/create-trader.m
     CyclicExchangeComponent,
     TraderBotManagerComponent,
     CreateTraderModalComponent,
+    PredictionConfigComponent,
+    PredictionTriggerComponent,
   ],
-  entryComponents: [CreateTraderModalComponent],
+  entryComponents: [CreateTraderModalComponent, PredictionConfigComponent, PredictionTriggerComponent],
   imports: [
     BrowserModule,
     HttpModule,
@@ -41,6 +46,7 @@ import { CreateTraderModalComponent } from './trader-bot-manager/create-trader.m
     TabsModule.forRoot(),
     ButtonsModule.forRoot(),
     ModalModule.forRoot(),
+    BsDropdownModule.forRoot(),
     RouterModule.forRoot([
       {
         path: '', // currency-list
@@ -61,7 +67,7 @@ import { CreateTraderModalComponent } from './trader-bot-manager/create-trader.m
     ])
   ],
   providers: [ PoloniexApiService, BittrexApiService, CoinmarketcapApiService,
-               TraderBotService ],
+               TraderBotService, LoaderWaitService ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -4,6 +4,7 @@ import { BittrexApiService } from '../services/bittrex-api.service';
 import { Observable } from 'rxjs/Rx';
 import * as _ from "lodash";
 import {Ng2Highcharts, Ng2Highmaps, Ng2Highstocks} from 'ng2-highcharts';
+import { LoaderWaitService } from '../services/loader-wait.service';
 
 const COINS = [
   {
@@ -66,7 +67,8 @@ export class RadarChartCurrencyComponent implements OnInit {
   
   constructor(
     private _poloniexService:PoloniexApiService,
-    private _bittrexApiService:BittrexApiService
+    private _bittrexApiService:BittrexApiService,
+    private loaderWait: LoaderWaitService
   ) {}
 
   ngOnInit() {
@@ -90,6 +92,8 @@ export class RadarChartCurrencyComponent implements OnInit {
     
     this.refreshChartData();
     this.setupRefresher();
+    
+    this.loaderWait.hide();
   }
   
   // ng2-highcharts
