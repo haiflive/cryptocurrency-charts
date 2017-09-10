@@ -44,19 +44,19 @@
 
 
 <h4>Options on trigger</h4>
-<div class="row" *ngFor="let option of trigger_options_list">
+<div class="row" *ngFor="let option_select of trigger_options_list">
   <label class="col-md-7">
     <ng-select
-        [items]="option.options_trigger_select"
-        [active]="option.value_options_trigger_select"
-        (selected)="selectTriggerOption($event)">
+        [items]="option_select.options_trigger_select"
+        [active]="option_select.value_options_trigger_select"
+        (selected)="selectTriggerOption($event, option_select)">
     </ng-select>
   </label>
   <div class="col-md-5">
     <div class="input-group">
-      <input type="text" class="form-control" [(ngModel)]="option.value" />
+      <input type="text" class="form-control" [(ngModel)]="option_select.option.value" />
       <div class="input-group-btn">
-        <button (click)="removeTriggerOption(option)" class="btn btn-default"><i class="fa fa-remove text-danger"></i></button>
+        <button (click)="removeTriggerOption(option_select)" class="btn btn-default"><i class="fa fa-remove text-danger"></i></button>
       </div>
     </div>
   </div>

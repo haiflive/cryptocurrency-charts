@@ -1,5 +1,5 @@
 <div class="modal-header">
-  <h4 class="modal-title pull-left">{{title}}</h4>
+  <h4 class="modal-title pull-left">Create Trader Bot</h4>
   <button type="button" class="close pull-right" aria-label="Close" (click)="bsModalRef.hide()">
     <span aria-hidden="true">&times;</span>
   </button>
@@ -8,7 +8,7 @@
   <div class="row">
     <label class="col-md-12">Name</label>
     <div class="col-md-12">
-      <input type="text" class="form-control" [(ngModel)]="botName" />
+      <input type="text" class="form-control" [(ngModel)]="trader.name" />
     </div>
   </div>
   <div class="row">
@@ -25,13 +25,13 @@
   <div class="row">
     <label class="col-md-12">API key</label>
     <div class="col-md-12">
-      <input type="text" class="form-control" [(ngModel)]="botApiKey" />
+      <input type="text" class="form-control" [(ngModel)]="trader.api_key" />
     </div>
   </div>
   <div class="row">
     <label class="col-md-12">API secret</label>
     <div class="col-md-12">
-      <input type="text" class="form-control" [(ngModel)]="botApiSecret" />
+      <input type="text" class="form-control" [(ngModel)]="trader.api_secret" />
     </div>
   </div>
   <div class="row">

@@ -9,14 +9,14 @@ import * as _ from "lodash";
 export class TraderBotService {
   constructor(private http: Http) { }
   
-  getAllTraders() {
+  getAllTraders(): Promise<any> {
     return this.http.get(BASE_URL)
             .toPromise()
             .then(response => response.json())
             .catch(this.handleError);
   }
   
-  getTrader(uid: string, queryParams?: {date_start: number, date_end: number, date_period: number}) {
+  getTrader(uid: string, queryParams?: {date_start: number, date_end: number, date_period: number}): Promise<any> {
     
     _.defaults(queryParams, {
       date_start: Math.round((Date.now() / 1000) - (8 * 24 * 60 * 60)),  // default 8 days
@@ -38,7 +38,7 @@ export class TraderBotService {
             .catch(this.handleError);
   }
   
-  addTrader(trader:TraderBot) {
+  addTrader(trader:TraderBot): Promise<any> {
     let headers = new Headers({ 'Content-Type': 'application/json' });
     let options = new RequestOptions({ headers: headers });
     
@@ -48,17 +48,18 @@ export class TraderBotService {
           .catch(this.handleError);
   }
 
-  updateTrader(trader:TraderBot) {
+  updateTrader(trader:TraderBot): Promise<any> {
     let headers = new Headers({ 'Content-Type': 'application/json' });
     let options = new RequestOptions({ headers: headers });
     
-    return this.http.put(BASE_URL, trader, options)
-          .toPromise()
-          .then(response => response.json())
-          .catch(this.handleError);
+    
+    return  this.http.put(BASE_URL, trader, options)
+            .toPromise()
+            .then(response => {response.json()})
+            .catch(this.handleError);
   }
   
-  deleteTrader(uid:string) {
+  deleteTrader(uid:string): Promise<any> {
     return this.http.delete(BASE_URL + `/` + uid)
           .toPromise()
           .then(response => response.json())

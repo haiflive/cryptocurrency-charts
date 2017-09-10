@@ -112,29 +112,35 @@
     </div>
     <div class="panel-body">
       <div class="row">
-        <label class="col-md-12">Name</label>
-        <div class="col-md-12">
-          <input type="text" class="form-control" [(ngModel)]="botName" />
+        <label class="col-md-7">Active</label>
+        <div class="col-md-5">
+          <button type="button" class="btn btn-sm"
+            [(ngModel)]="botIsAvtive" btnCheckbox
+            [ngClass]="{'btn-info' : botIsAvtive}"
+            ngDefaultControl>
+            {{botIsAvtive ? 'Trading...' : 'Disabled'}}
+          </button>
+        </div>
+      </div>
+
+      <div class="row">
+        <label class="col-md-7">Name</label>
+        <div class="col-md-5">
+          <input type="text" class="form-control input-sm" [(ngModel)]="botName" />
         </div>
       </div>
       <div class="row">
-        <label class="col-md-12">API key</label>
-        <div class="col-md-12">
-          <input type="text" class="form-control" [ngModel]="botApiKey" disabled />
+        <label class="col-md-7">API key</label>
+        <div class="col-md-5">
+          <input type="text" class="form-control input-sm" [ngModel]="botApiKey" disabled />
         </div>
       </div>
       <legend>Options</legend>
-      <prediction-content *ngIf="bot_config" [bot-config]="bot_config"></prediction-content>
+      <prediction-content [bot-config]="selectedBot.bot_config"></prediction-content>
       <hr>
       <div class="row">
         <label class="col-md-12">&nbsp;</label>
         <div class="col-md-12">
-          <button type="button" class="btn pull-right"
-              [(ngModel)]="chartGroupingV" btnCheckbox
-              [ngClass]="{'btn-success' : chartGroupingV === '1'}"
-              btnCheckboxTrue="1" btnCheckboxFalse="0" ngDefaultControl>
-              {{chartGroupingV === '1' ? 'Trading' : 'Disabled'}}
-          </button>
           <button type="button" class="btn btn-success" (click)="updateBotSettings()">
               Save
           </button>

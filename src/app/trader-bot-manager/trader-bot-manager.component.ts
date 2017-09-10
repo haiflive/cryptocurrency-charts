@@ -8,6 +8,7 @@ import { TraderBot, PredictionConfig } from '../services/types/trader.types';
 import { LoaderWaitService } from '../services/loader-wait.service';
 import { PoloniexApiService } from '../services/poloniex-api.service';
 import { CreateTraderModalComponent } from './create-trader.modal.component';
+import { TraderBotHelper } from './trader.bot.helper';
 
 import * as _ from "lodash";
 
@@ -26,7 +27,6 @@ export class TraderBotManagerComponent implements OnInit {
   ) {}
   
   bsModalRef: BsModalRef;
-  currency_pair_select:any = [];
   // ng2-highcharts
   chartStock;
   orderBookDepth;
@@ -38,7 +38,7 @@ export class TraderBotManagerComponent implements OnInit {
   
   balances:any[];
   trade_history:any[];
-  bot_config:PredictionConfig;
+  // bot_config:PredictionConfig;
   
   traderBotList : TraderBot[];
   selectedBot : TraderBot;
@@ -60,25 +60,8 @@ export class TraderBotManagerComponent implements OnInit {
   private date_end:number;
   private date_period:number;
   
-  private stock_exchange_list:Array<any> = [{
-      id: 'poloniex',
-      name: `poloniex.com`,
-      url: 'poloniex.com',
-      // provider: this._poloniexService
-    }, {
-      id: 'bittrex',
-      name: `bittrex.com`,
-      url: 'bittrex.com',
-      // provider: this._bittrexApiService
-  }];
-  
   ngOnInit() {
-    this.selectedBot = {
-      name: '',
-      api_key: '',
-      stock_id: '',
-      currency_pair: ''
-    };
+    this.selectedBot = TraderBotHelper.buildTrader();
 
     this.selectedBotIndex = -1;
 
@@ -87,10 +70,44 @@ export class TraderBotManagerComponent implements OnInit {
     this.date_period = 1800;
     
     this.refreshBotList();
-    this.loadCurrencyPairList();
     this.loaderWait.hide();
   }
   
+  // --
+  public get botName():string {
+    return this.selectedBot.name;
+  }
+ 
+  public set botName(value:string) {
+    if(this.selectedBot.name == value)
+      return;
+    
+    this.selectedBot.name = value;
+  }
+
+  public get botIsAvtive():boolean {
+    return this.selectedBot.is_active;
+  }
+ 
+  public set botIsAvtive(value:boolean) {
+    if(this.selectedBot.is_active == value)
+      return;
+    
+    this.selectedBot.is_active = value;
+  }
+  
+  public get botApiKey():string {
+    return this.selectedBot.api_key;
+  }
+ 
+  public set botApiKey(value:string) {
+    if(this.selectedBot.api_key == value)
+      return;
+    
+    this.selectedBot.api_key = value;
+  }
+  
+  // --
   selectBot(index: number): void {
     this.selectedBotIndex = index;
     
@@ -108,43 +125,12 @@ export class TraderBotManagerComponent implements OnInit {
     var me = this;
     
     this.bsModalRef = this.modalService.show(CreateTraderModalComponent);
-    this.bsModalRef.content.title = 'Create Trader Bot';
-    this.bsModalRef.content.botName = 'New bot';
-    this.bsModalRef.content.botApiKey = 'QWXA2ZA8-UJH5ITDI-7JK8V192-R690VFDC';
-    this.bsModalRef.content.botApiSecret = 'cbfd802e81509866707ca91d1e9dd68a947e16d2956c30f503f06080061037f2fe09a636fd4050e6f8e8904e34b7af5421d7f3663da36365905421485b412e99';
-    
-    // create stock list
-    var stock_exchange_select: any[] = [];
-    this.stock_exchange_list.forEach((stock: {id: string, name: string, url: string}) => {
-      stock_exchange_select.push({
-        id: stock.id,
-        text: `${stock.name} [${stock.url}]`
-      });
-    });
-    
-    this.bsModalRef.content.stock_exchange_select = stock_exchange_select;
-    this.bsModalRef.content.value_stock_select = [this.bsModalRef.content.stock_exchange_select[0]]; // first
-    
-    // create currency pair list
-    this.bsModalRef.content.currency_pair_select = this.currency_pair_select;
-    // let value = this.bsModalRef.content.currency_pair_select[0];
-    // default value BTC_ZEC:
-    let value = _.find(this.bsModalRef.content.currency_pair_select, (p:any) => {
-      return p.id == 'XMR_ZEC';
-    });
-    
-    this.bsModalRef.content.value_currency_pair_select = [value]; // first
-    
-    this.bsModalRef.content.create = function() {      
-      var data: TraderBot = {
-        name: me.bsModalRef.content.botName,
-        api_key: me.bsModalRef.content.botApiKey,
-        api_secret: me.bsModalRef.content.botApiSecret,
-        stock_id: me.bsModalRef.content.value_stock_select[0].id,
-        currency_pair: me.bsModalRef.content.value_currency_pair_select[0].id
-      };
-      
+
+    this.bsModalRef.content.create = function() {
+      var data: TraderBot = me.bsModalRef.content.trader;
+      me.loaderWait.show();
       me._traderBotService.addTrader(data).then(reponse => {
+        me.loaderWait.hide();
         me.bsModalRef.hide();
         me.refreshBotList(true);
       });
@@ -152,41 +138,24 @@ export class TraderBotManagerComponent implements OnInit {
   }
   
   removeBot(uid: string):void {
+    this.loaderWait.show();
     this._traderBotService.deleteTrader(uid).then(reponse => {
-      console.log(reponse);
+      this.loaderWait.hide();
       this.refreshBotList();
     });
   }
   
-  // --
-  public get botName():string {
-    return this.selectedBot.name;
-  }
- 
-  public set botName(value:string) {
-    if(this.selectedBot.name == value)
-      return;
-    
-    this.selectedBot.name = value;
-  }
-  
-  public get botApiKey():string {
-    return this.selectedBot.api_key;
-  }
- 
-  public set botApiKey(value:string) {
-    if(this.selectedBot.api_key == value)
-      return;
-    
-    this.selectedBot.api_key = value;
-  }
-  
   updateBotSettings():void {
-    this._traderBotService.updateTrader(this.selectedBot);
+    this.loaderWait.show();
+    this._traderBotService.updateTrader(this.selectedBot).then(data => {
+      this.loaderWait.hide();
+    });
   };
   
   protected refreshBotList(selectJustCreated: boolean = false) {
+    this.loaderWait.show();
     this._traderBotService.getAllTraders().then(data => {
+      this.loaderWait.hide();
       this.traderBotList = data;
       
       let selectIndex = 0;
@@ -237,282 +206,266 @@ export class TraderBotManagerComponent implements OnInit {
       date_period: this.date_period
     };
     
+    this.loaderWait.show();
     this._traderBotService.getTrader(uid, params)
     .then((response: any) => {
-        let bot = response;
-        let data = bot.charts;
-        let dataDepth = bot.depth;
-        let balances = [];
-        _.each(bot.balances, (val, key) => {
-          balances.push({name: key, value: val});
-        });
-        
-        me.balances = balances;
-        me.trade_history = bot.trade_history;
-        me.bot_config = bot.config;
-        
-        let trade_list = _.map(me.trade_history, (p:any) => {
-          return {
-            x: new Date(p.date).getTime(),
-            title: p.type,
-            text: `total: ${p.total}, (rate: ${p.rate}, amount: ${p.amount}`
-          };
-        });
-        
-        // split the data set into ohlc and volume
-        var ohlc = [],
-            volume = [],
-            average = [],
-            predict1 = [],
-            predict2 = [],
-            predict3 = [],
-            predict4 = [],
-            dataLength = data.length,
-            // set the allowed units for data grouping
-            groupingUnits = [[
-                'hour',
-                [1]
-            ], [
-                'week',                         // unit name
-                [1]                             // allowed multiples
-            ], [
-                'month',
-                [1, 2, 3, 4, 6]
-            ]],
+      this.loaderWait.hide();
+      let bot = response;
+      let data = bot.charts;
+      let dataDepth = bot.depth;
+      let balances = [];
+      _.each(bot.balances, (val, key) => {
+        balances.push({name: key, value: val});
+      });
+      
+      me.balances = balances;
+      me.trade_history = bot.trade_history;
+      
+      let trade_list = _.map(me.trade_history, (p:any) => {
+        return {
+          x: new Date(p.date).getTime(),
+          title: p.type,
+          text: `total: ${p.total}, (rate: ${p.rate}, amount: ${p.amount}`
+        };
+      });
+      
+      // split the data set into ohlc and volume
+      var ohlc = [],
+          volume = [],
+          average = [],
+          predict1 = [],
+          predict2 = [],
+          predict3 = [],
+          predict4 = [],
+          dataLength = data.length,
+          // set the allowed units for data grouping
+          groupingUnits = [[
+              'hour',
+              [1]
+          ], [
+              'week',                         // unit name
+              [1]                             // allowed multiples
+          ], [
+              'month',
+              [1, 2, 3, 4, 6]
+          ]],
 
-            i = 0;
+          i = 0;
 
-        for (i; i < dataLength; i += 1) {
-            ohlc.push([
-                data[i][0], // the date
-                data[i][1], // open
-                data[i][2], // high
-                data[i][3], // low
-                data[i][4] // close
-            ]);
+      for (i; i < dataLength; i += 1) {
+          ohlc.push([
+              data[i][0], // the date
+              data[i][1], // open
+              data[i][2], // high
+              data[i][3], // low
+              data[i][4] // close
+          ]);
 
-            volume.push([
-                data[i][0], // the date
-                data[i][5] // the volume
-            ]);
-            
-            average.push([
-                data[i][0], // the date
-                data[i][7] // weighted average
-            ]);
-            
-            predict1.push([
+          volume.push([
               data[i][0], // the date
-              data[i][8], // predict1
-            ]);
-            
-            predict2.push([
+              data[i][5] // the volume
+          ]);
+          
+          average.push([
               data[i][0], // the date
-              data[i][9], // predict3
-            ]);
-            
-            predict3.push([
-              data[i][0], // the date
-              data[i][10], // predict4
-            ]);
-            
-            predict4.push([
-              data[i][0], // the date
-              data[i][11], // predict5
-            ]);
-        }
-        
-        let period_1h = Math.round(Date.now() - (60*60 * 1000));
-        let period_24h = Math.round(Date.now() - (24*60*60 * 1000));
-        let period_7d = Math.round(Date.now() - (7*24*60*60 * 1000));
-        
-        // calculate change:
-        this.change1h = this.calculateChange(average, period_1h);
-        this.change24h = this.calculateChange(average, period_24h);
-        this.change7d = this.calculateChange(average, period_7d);
-        
-        /**
-         *  @chartStock
-         *  @orderBookDepth
-         *  @API - http://api.highcharts.com/highcharts/
-         */
-        this.chartStock = {
-            rangeSelector: {
-                buttons: [{
-                    type: 'hour',
-                    count: 12,
-                    text: '12h'
-                }, {
-                  type: 'day',
-                  count: 1,
-                  text: '24h'
-                }, {
-                  type: 'day',
-                  count: 7,
-                  text: '7d'
-                }, {
-                  type: 'month',
-                  count: 1,
-                  text: '1m'
-                }, {
-                  type: 'month',
-                  count: 3,
-                  text: '3m'
-                }, {
-                  type: 'year',
-                  count: 1,
-                  text: '1y'
-                }, {
-                  type: 'ytd',
-                  text: 'YTD'
-                }, {
-                  type: 'all',
-                  text: 'All'
-                }],
-                selected: 2,
-                inputEnabled: false
-            },
-
-            // title: {
-                // text: 'chart Title'
-            // },
-            yAxis: [{
-                labels: {
-                    align: 'right',
-                    x: -3
-                },
-                title: {
-                    text: 'OHLC'
-                },
-                height: '60%',
-                lineWidth: 2
+              data[i][7] // weighted average
+          ]);
+          
+          predict1.push([
+            data[i][0], // the date
+            data[i][8], // predict1
+          ]);
+          
+          predict2.push([
+            data[i][0], // the date
+            data[i][9], // predict3
+          ]);
+          
+          predict3.push([
+            data[i][0], // the date
+            data[i][10], // predict4
+          ]);
+          
+          predict4.push([
+            data[i][0], // the date
+            data[i][11], // predict5
+          ]);
+      }
+      
+      let period_1h = Math.round(Date.now() - (60*60 * 1000));
+      let period_24h = Math.round(Date.now() - (24*60*60 * 1000));
+      let period_7d = Math.round(Date.now() - (7*24*60*60 * 1000));
+      
+      // calculate change:
+      this.change1h = this.calculateChange(average, period_1h);
+      this.change24h = this.calculateChange(average, period_24h);
+      this.change7d = this.calculateChange(average, period_7d);
+      
+      /**
+       *  @chartStock
+       *  @orderBookDepth
+       *  @API - http://api.highcharts.com/highcharts/
+       */
+      this.chartStock = {
+        rangeSelector: {
+            buttons: [{
+                type: 'hour',
+                count: 12,
+                text: '12h'
             }, {
-                labels: {
-                    align: 'right',
-                    x: -3
-                },
-                title: {
-                    text: 'Volume'
-                },
-                top: '65%',
-                height: '35%',
-                offset: 0,
-                lineWidth: 2
+              type: 'day',
+              count: 1,
+              text: '24h'
+            }, {
+              type: 'day',
+              count: 7,
+              text: '7d'
+            }, {
+              type: 'month',
+              count: 1,
+              text: '1m'
+            }, {
+              type: 'month',
+              count: 3,
+              text: '3m'
+            }, {
+              type: 'year',
+              count: 1,
+              text: '1y'
+            }, {
+              type: 'ytd',
+              text: 'YTD'
+            }, {
+              type: 'all',
+              text: 'All'
             }],
-            
-            xAxis: {
-              events: {
-                setExtremes: (e) => {
-                  me.setRangeChartData(e.min, e.max);
-                  // if(typeof(e.rangeSelectorButton)!== 'undefined') {
-                    // // alert('count: '+e.rangeSelectorButton.count + 'text: ' +e.rangeSelectorButton.text + ' type:' + e.rangeSelectorButton.type);
-                  // }
-                }
-              }
-            },
+            selected: 2,
+            inputEnabled: false
+        },
 
-            tooltip: {
-                split: true
+        // title: {
+            // text: 'chart Title'
+        // },
+        yAxis: [{
+            labels: {
+                align: 'right',
+                x: -3
             },
-
-            series: [{
-                type: 'candlestick',
-                name: 'AAPL',
-                data: ohlc,
-                dataGrouping: {
-                    units: groupingUnits
-                }
-            }, {
-                name: 'Qeighted Average',
-                data: average,
-            }, {
-                name: 'p_1',
-                data: predict1,
-            }, {
-                name: 'p_2',
-                data: predict2,
-            }, {
-                name: 'p_3',
-                data: predict3,
-            }, {
-                name: 'p_4',
-                data: predict4,
-            }, {
-                type: 'column',
-                name: 'Volume',
-                data: volume,
-                yAxis: 1,
-                dataGrouping: {
-                    units: groupingUnits
-                }
-            }, {
-                type: 'flags',
-                data: trade_list,
-                onSeries: 'dataseries',
-                shape: 'circlepin',
-                width: 16
-            }]
-        };
-        
-        
-        let result : any;
-        let chartGroupingDecimals = 6;
-        
-        if(this._chartGrouping) {
-          result = this.prepareDepthDataGrouped(dataDepth, chartGroupingDecimals);
-        } else {
-          result = this.prepareDepthDataLinear(dataDepth);
-        }
-        
-        this.orderBookDepth = {
-          chart: {
-            type: 'line'
-          },
-          title: {
-            text: ''
-          },
-          xAxis: {
-            categories: result.chart_labels,
-            allowDecimals: true
-          },
-          yAxis: {
             title: {
-              text: 'Coins'
+                text: 'OHLC'
+            },
+            height: '60%',
+            lineWidth: 2
+        }, {
+            labels: {
+                align: 'right',
+                x: -3
+            },
+            title: {
+                text: 'Volume'
+            },
+            top: '65%',
+            height: '35%',
+            offset: 0,
+            lineWidth: 2
+        }],
+        
+        xAxis: {
+          events: {
+            setExtremes: (e) => {
+              me.setRangeChartData(e.min, e.max);
+              // if(typeof(e.rangeSelectorButton)!== 'undefined') {
+                // // alert('count: '+e.rangeSelectorButton.count + 'text: ' +e.rangeSelectorButton.text + ' type:' + e.rangeSelectorButton.type);
+              // }
             }
-          },
-          tooltip: {
-            shared: true
-          },
-          plotOptions: {
-              line: {
-                  animation: false
-              }
-          },
-          series: result.chart_data
-        };
+          }
+        },
+
+        tooltip: {
+            split: true
+        },
+
+        series: [{
+            type: 'candlestick',
+            name: 'AAPL',
+            data: ohlc,
+            dataGrouping: {
+                units: groupingUnits
+            }
+        }, {
+            name: 'Qeighted Average',
+            data: average,
+        }, {
+            name: 'p_1',
+            data: predict1,
+        }, {
+            name: 'p_2',
+            data: predict2,
+        }, {
+            name: 'p_3',
+            data: predict3,
+        }, {
+            name: 'p_4',
+            data: predict4,
+        }, {
+            type: 'column',
+            name: 'Volume',
+            data: volume,
+            yAxis: 1,
+            dataGrouping: {
+                units: groupingUnits
+            }
+        }, {
+            type: 'flags',
+            data: trade_list,
+            onSeries: 'dataseries',
+            shape: 'circlepin',
+            width: 16
+        }]
+      };
+      
+      
+      let result : any;
+      let chartGroupingDecimals = 6;
+      
+      if(this._chartGrouping) {
+        result = this.prepareDepthDataGrouped(dataDepth, chartGroupingDecimals);
+      } else {
+        result = this.prepareDepthDataLinear(dataDepth);
+      }
+      
+      this.orderBookDepth = {
+        chart: {
+          type: 'line'
+        },
+        title: {
+          text: ''
+        },
+        xAxis: {
+          categories: result.chart_labels,
+          allowDecimals: true
+        },
+        yAxis: {
+          title: {
+            text: 'Coins'
+          }
+        },
+        tooltip: {
+          shared: true
+        },
+        plotOptions: {
+          line: {
+              animation: false
+          }
+        },
+        series: result.chart_data
+      };
     },
     (err: any) => {
       console.error('Somethin went wrong', err);
     });
   }
 
-  private loadCurrencyPairList():void {  
-    this.loaderWait.show();
-    
-    this._poloniexApiService.getReturnTicker()
-    .then((response: any) => {
-      this.loaderWait.hide();
-      let data:any = response;
-      
-      this.currency_pair_select = _.map(data, (value:any, key:string) => {
-        return {
-          id: key, // value.id,
-          text: key
-        };
-      });
-    });
-  }
-  
   private prepareDepthDataLinear(data:any) : any {
       let chart_data_volume_btc: Array<number> = [];
       let chart_data_total_btc: Array<number> = [];
@@ -552,7 +505,7 @@ export class TraderBotManagerComponent implements OnInit {
       return {
           chart_labels: chart_labels,
           chart_data: [
-                {data: chart_data_volume_btc, name: source_coin, type: 'column'},
+                {data: chart_data_volume_btc, name: source_coin, type: 'column', visible: false},
                 {data: chart_data_volume, name: 'Coins', type: 'column'},
                 {data: chart_data_asks_depth, name: 'Asks Coins', type: 'area'},
                 {data: chart_data_bids_depth, name: 'Bids Coins', type: 'area'},
