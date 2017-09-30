@@ -65,7 +65,27 @@ export class TraderBotService {
           .then(response => response.json())
           .catch(this.handleError);
   }
-  
+
+  addOrder(uid: string, order: {type: string, amount: number, price: number}) : Promise<any> {
+    let headers = new Headers({ 'Content-Type': 'application/json' });
+    let options = new RequestOptions({ headers: headers });
+    
+    return this.http.post(BASE_URL + `/${uid}/add_order`, order, options)
+          .toPromise()
+          .then(response => response.json())
+          .catch(this.handleError);
+  }
+
+  cancelOrder(uid: string, order_number: number) : Promise<any> {
+    let headers = new Headers({ 'Content-Type': 'application/json' });
+    let options = new RequestOptions({ headers: headers });
+    
+    return this.http.post(BASE_URL + `/${uid}/cancel_order/${order_number}`, {}, options)
+          .toPromise()
+          .then(response => response.json())
+          .catch(this.handleError);
+  }
+
   private handleError(error: any): Promise<any> {
     console.error('An error occurred', error);
     return Promise.reject(error.message || error);

@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Trigger, IndexComparsion, TriggerOption, TraderBotConst } from '../services/types/trader.types';
-import { TraderBotHelper, TriggerOptionSelect } from './trader.bot.helper';
+import { Trigger, IndexComparsion, TriggerAction, TraderBotConst } from '../services/types/trader.types';
+import { TraderBotHelper, TriggerActionSelect } from './trader.bot.helper';
 
 import * as _ from "lodash";
 
@@ -16,51 +16,52 @@ export class PredictionTriggerComponent implements OnInit {
   index_select: any[];
   value_index_select: any[];
   
-  trigger_options_list: TriggerOptionSelect[];
+  trigger_actions_list: TriggerActionSelect[];
   
   constructor() {
     //this.index_comparsion = IndexComparsion.less_than_index;
     // --
     
-    // this.trigger_options_list = [];
-    // this.addTriggerOption();
+    // this.trigger_actions_list = [];
+    // this.addTriggerAction();
   }
 
   ngOnInit() {
     this.index_select = _.map(TraderBotConst.TRIGGER_INDEXES, (p:any) => {
       return {
-        id: p.name,
-        text: p.description,
+        id: p.uid,
+        text: p.name,
       }
     });
     
-    this.value_index_select = [this.index_select[0]];
+    if(this.index_select.length > 0)
+      this.value_index_select = [this.index_select[0]];
 
-    this.trigger_options_list = [];
-    this.config.options.forEach((option:TriggerOption) => {
-      this.trigger_options_list.push(TraderBotHelper.buildTriggerOptionSelect(option));
+    this.trigger_actions_list = [];
+    this.config.actions.forEach((action:TriggerAction) => {
+      this.trigger_actions_list.push(TraderBotHelper.buildTriggerActionSelect(action));
     });
   }
   
-  public addTriggerOption() {
-    let option: TriggerOption = TraderBotHelper.buildTriggerOption();
-    this.config.options.push(option);
-    this.trigger_options_list.push(TraderBotHelper.buildTriggerOptionSelect(option));
+  public addTriggerAction() {
+    let action: TriggerAction = TraderBotHelper.buildTriggerAction();
+    this.config.actions.push(action);
+    this.trigger_actions_list.push(TraderBotHelper.buildTriggerActionSelect(action));
   }
   
-  removeTriggerOption(option_select: TriggerOptionSelect):void {
-    this.config.options = _.filter(this.config.options, (p) => {
-      return option_select.option !== p;
+  removeTriggerAction(action_select: TriggerActionSelect):void {
+    this.config.actions = _.filter(this.config.actions, (p) => {
+      return action_select.action !== p;
     });
 
-    this.trigger_options_list = _.filter(this.trigger_options_list, (p) => {
-      return option_select !== p;
+    this.trigger_actions_list = _.filter(this.trigger_actions_list, (p) => {
+      return action_select !== p;
     });
   }
 
-  selectTriggerOption(item: {id: string, text: string}, option_select: TriggerOptionSelect): void {
-    option_select.option.name = item.id;
-    // this.config.options[?].name = item.id; // not need change by referance
+  selectTriggerAction(item: {id: string, text: string}, action_select: TriggerActionSelect): void {
+    action_select.action.name = item.id;
+    // this.config.actions[?].name = item.id; // not need change by referance
   }
   
 }

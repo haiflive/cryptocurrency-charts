@@ -1,12 +1,12 @@
-import { TraderBot, Trigger, IndexComparsion, TriggerOption, TraderBotConst, PredictionConfig } from '../services/types/trader.types';
+import { TraderBot, Trigger, IndexComparsion, TriggerAction, TraderBotConst, PredictionConfig } from '../services/types/trader.types';
 
 import * as _ from "lodash";
 
-export interface TriggerOptionSelect {
-  option: TriggerOption;
-  // option trigger select
-  options_trigger_select?: any[];
-  value_options_trigger_select?: any[];
+export interface TriggerActionSelect {
+  action: TriggerAction;
+  // action trigger select
+  actions_trigger_select?: any[];
+  value_actions_trigger_select?: any[];
 }
 
 export class TraderBotHelper {
@@ -14,7 +14,6 @@ export class TraderBotHelper {
     public static buildTrader() : TraderBot {
       let trader: TraderBot = {
         name: 'New bot',
-        is_active: false,
         api_key: 'QWXA2ZA8-UJH5ITDI-7JK8V192-R690VFDC',
         api_secret: 'cbfd802e81509866707ca91d1e9dd68a947e16d2956c30f503f06080061037f2fe09a636fd4050e6f8e8904e34b7af5421d7f3663da36365905421485b412e99',
         stock_id: TraderBotConst.STOCK_EXCHANGE_LIST[0].id,// 'poloniex',
@@ -26,8 +25,8 @@ export class TraderBotHelper {
     }
 
     public static buildTrigger() : Trigger {
-      let options: TriggerOption[] = [];
-      options.push(TraderBotHelper.buildTriggerOption());
+      let actions: TriggerAction[] = [];
+      actions.push(TraderBotHelper.buildTriggerAction());
       
       let trigger: Trigger = {
         index_name: 'predict_depth_balance',
@@ -35,56 +34,69 @@ export class TraderBotHelper {
         sleep_period: 0,
         index_comparsion: IndexComparsion.greater_than_index,
         comparsion_value: 0.6,
-        options: options
+        actions: actions
       };
   
       return trigger;
     }
   
-    public static buildTriggerOptionSelect(trigger_option: TriggerOption) : TriggerOptionSelect {
-      let options_trigger_select = _.map(TraderBotConst.TRIGGER_OPTIONS, (p:any) => {
+    public static buildTriggerActionSelect(trigger_action: TriggerAction) : TriggerActionSelect {
+      let action_GroupParams = _.map(TraderBotConst.TRIGGER_ACTIONS, (p:any) => {
         return {
           id: p.variable_name,
-          text: p.description,
+          text: p.name,
         }
       });
-      
-      let value_options_trigger_select = _.find(options_trigger_select, (p:any) => {
-        return trigger_option.name == p.id;
-      });
-      value_options_trigger_select = [value_options_trigger_select];
 
-      if(_.isEmpty(value_options_trigger_select))
-        value_options_trigger_select = [options_trigger_select[0]];
+      let actions_trigger_select = [{
+        id: 1,
+        text: 'Change param',
+        children: action_GroupParams
+      }];
+
+      let value_actions_trigger_select: any[] = [
+        _.find(action_GroupParams, (p:any) => {
+          return trigger_action.param == p.id;
+        })
+      ];
+
+      if(_.isEmpty(value_actions_trigger_select))
+        value_actions_trigger_select = [action_GroupParams[0]];
         
 
-      let option_select: TriggerOptionSelect = {
-        option: trigger_option,
-        options_trigger_select: options_trigger_select,
-        value_options_trigger_select: value_options_trigger_select,
+      let action_select: TriggerActionSelect = {
+        action: trigger_action,
+        actions_trigger_select: actions_trigger_select,
+        value_actions_trigger_select: value_actions_trigger_select,
       }
   
-      return option_select;
+      return action_select;
     }
 
-    public static buildTriggerOption() : TriggerOption {
-      let option: TriggerOption = {
-        name: TraderBotConst.TRIGGER_OPTIONS[0].variable_name,
-        value: 1000, // default one second
+    public static buildTriggerAction() : TriggerAction {
+      let action: TriggerAction = {
+        name: TraderBotConst.TRIGGER_ACTIONS[0].name,
+        param: TraderBotConst.TRIGGER_ACTIONS[0].variable_name,
+        value: 0, 
       };
 
-      return option;
+      return action;
     }
 
     public static buildPredictionConfig() : PredictionConfig {
       let config: PredictionConfig = {
+        is_active: false,
         reorder_time: 30 * 60 *1000, // default 30 min
         prediction_time: 3 * 24 * 60 * 60 * 1000, // default 3 days
-        percentage_supply: 20,
+        percentage_supply: 60,
         percentage_buy: 5,
         percentage_sell: 10,
-        balance: 1/2,
+        balance: 50,
         order_book_depth: 200,
+        extremum_smoth_pesentage_up: 2.5, // %
+        extremum_smoth_pesentage_down: 2.5, // %
+        depth_pesentage_volume_filter_asks: 2.5, // %
+        depth_pesentage_volume_filter_bids: 2.5, // %
         triggers: [TraderBotHelper.buildTrigger()]
       }
 

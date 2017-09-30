@@ -18,17 +18,31 @@
           </div>
         </div>
       </div>
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          Indexes
+        </div>
+        <div class="panel-body">
+          <div class="list-group">
+            <ul>
+              <li *ngFor="let index_item of index_list;">{{getTrigetIndexName(index_item.uid)}}: {{index_item.value}}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="col-md-8">
       <div class="panel panel-default">
         <div class="panel-heading">
           &nbsp;<span *ngIf="selectedBot">{{selectedBot.name}} ({{selectedBot.stock_id}}) - [{{selectedBot.currency_pair}}]</span>
           <div class="pull-right">7d: <span
-              [ngClass]="{'text-success' : change7d > 0,'text-danger' : change7d < 0}">{{change7d}}%</span></div>
+              [ngClass]="{'text-success' : change7d > 0,'text-danger' : change7d < 0}">{{change7d.toFixed(2)}}%</span></div>
           <div class="pull-right">24h: <span
-              [ngClass]="{'text-success' : change24h > 0,'text-danger' : change24h < 0}">{{change24h}}%</span>,&nbsp;</div>
+              [ngClass]="{'text-success' : change24h > 0,'text-danger' : change24h < 0}">{{change24h.toFixed(2)}}%</span>,&nbsp;</div>
           <div class="pull-right">1h: <span
-              [ngClass]="{'text-success' : change1h > 0,'text-danger' : change1h < 0}">{{change1h}}%</span>,&nbsp;</div>
+              [ngClass]="{'text-success' : change1h > 0,'text-danger' : change1h < 0}">{{change1h.toFixed(2)}}%</span>,&nbsp;</div>
+          <div class="pull-right"><i class="fa fa-eye"></i> <span
+              [ngClass]="{'text-success' : change_pretioction_time > 0,'text-danger' : change_pretioction_time < 0}">{{change_pretioction_time.toFixed(2)}}%</span>,&nbsp;</div>
         </div>
         <div class="panel-body">
           <div [ng2-highstocks]="chartStock" class="graph"></div>
@@ -41,10 +55,63 @@
     <div class="col-md-4">
       <div class="panel panel-default">
         <div class="panel-heading">
-          Bot Current Orders
+          Manual Open Order
         </div>
         <div class="panel-body">
-          Order List
+          <div class="list-group">
+            <div class="row">
+              <label class="col-md-7">Price:</label>
+              <div class="col-md-5">
+                <input type="text" [(ngModel)]="orderPrice" class="form-control input-sm" placeholder="10" />
+              </div>
+            </div>
+            <div class="row">
+              <label class="col-md-7">Amount:</label>
+              <div class="col-md-5">
+                <input type="text" [(ngModel)]="orderAmount" class="form-control input-sm" placeholder="20" />
+              </div>
+            </div>
+            <div class="row">
+              <label class="col-md-7">Total:</label>
+              <div class="col-md-5">
+                <input type="text" [(ngModel)]="orderTotal" class="form-control input-sm" placeholder="30" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12" style="margin-top:14px;">
+                <button class="btn pull-right"
+                  [ngClass]="{
+                    'btn-default' : orderPrice >= prediction_average,
+                    'btn-success' : orderPrice < prediction_average,
+                    'disabled' : !orderPrice || !orderAmount
+                  }"
+                  (click)="traderAddOrderBuy()"
+                >
+                  <i class ="fa fa-plus"></i>&nbsp;Buy [ZEC]
+                </button>
+                <button class="btn btn-default"
+                [ngClass]="{
+                  'btn-default' : orderPrice <= prediction_average,
+                  'btn-success' : orderPrice > prediction_average,
+                  'disabled' : !orderPrice || !orderAmount
+                }"
+                  (click)="traderAddOrderSell()"
+                >
+                  <i class ="fa fa-minus"></i>&nbsp;Sell [ZEC]
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          Balance
+        </div>
+        <div class="panel-body">
+          <ul>
+            <li *ngFor="let balance of balances">[{{balance.name}}]: {{balance.value}}</li>
+          </ul>
         </div>
       </div>
     </div>
@@ -62,12 +129,25 @@
     <div class="col-md-4">
       <div class="panel panel-default">
         <div class="panel-heading">
-          Balance
+          Bot Current Orders
         </div>
         <div class="panel-body">
-          <ul>
-            <li *ngFor="let balance of balances">[{{balance.name}}]: {{balance.value}}</li>
-          </ul>
+          <div class="list-group">
+            <a *ngFor="let order of open_orders"
+                href="javascript:void(0)" class="list-group-item"
+              >
+              <button class="btn btn-default btn-xs pull-right" (click)="traderCancelOrder(order.orderNumber)"><i class ="fa fa-remove text-danger"></i>&nbsp;Cancel</button>
+              <span>[<i class ="fa" [ngClass]="{
+                'fa-plus' : order.type == 'buy',
+                'fa-minus' : order.type == 'sell'
+              }"></i>&nbsp;{{order.type}}]&nbsp;</span>
+              #{{order.orderNumber}}<br>
+              Rate:&nbsp;  {{order.rate}}<br>
+              Amount:&nbsp;{{order.amount}}<br>
+              Total: &nbsp;{{order.total}}<br>
+              Date: &nbsp; {{order.date}}
+            </a>
+          </div>
         </div>
       </div>
     </div>
@@ -80,19 +160,21 @@
           <table class="table table-striped">
             <tr>
               <th style="width:20px;"></th>
-              <th>Total</th>
-              <th>Fee</th>
+              <th>Amount</th>
               <th>Rate</th>
+              <th>Fee</th>
+              <th>Total</th>
               <th>Date</th>
             </tr>
             <tr *ngFor="let trade of trade_history">
               <td><i class ="fa" [ngClass]="{
-                'fa-plus text-success' : trade.type == 'sell',
-                'fa-minus text-danger' : trade.type == 'buy'
+                'fa-plus text-success' : trade.type == 'buy',
+                'fa-minus text-danger' : trade.type == 'sell'
               }"></i></td>
-              <td>{{trade.total}}</td>
-              <td>{{trade.fee}}</td>
+              <td>{{trade.amount}}</td>
               <td>{{trade.rate}}</td>
+              <td>{{trade.fee}}</td>
+              <td>{{trade.total}}</td>
               <td>{{trade.date}}</td>
             <tr>
           </table>
@@ -112,18 +194,6 @@
     </div>
     <div class="panel-body">
       <div class="row">
-        <label class="col-md-7">Active</label>
-        <div class="col-md-5">
-          <button type="button" class="btn btn-sm"
-            [(ngModel)]="botIsAvtive" btnCheckbox
-            [ngClass]="{'btn-info' : botIsAvtive}"
-            ngDefaultControl>
-            {{botIsAvtive ? 'Trading...' : 'Disabled'}}
-          </button>
-        </div>
-      </div>
-
-      <div class="row">
         <label class="col-md-7">Name</label>
         <div class="col-md-5">
           <input type="text" class="form-control input-sm" [(ngModel)]="botName" />
@@ -135,7 +205,7 @@
           <input type="text" class="form-control input-sm" [ngModel]="botApiKey" disabled />
         </div>
       </div>
-      <legend>Options</legend>
+      <h4>Taderer Options:</h4>
       <prediction-content [bot-config]="selectedBot.bot_config"></prediction-content>
       <hr>
       <div class="row">

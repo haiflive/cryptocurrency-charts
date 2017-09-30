@@ -4,7 +4,7 @@ import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/modal-options.class';
 
 import { TraderBotService } from '../services/trader-bot.service';
-import { TraderBot, PredictionConfig } from '../services/types/trader.types';
+import { TraderBot, PredictionConfig, TriggerIndexItem, TraderBotConst } from '../services/types/trader.types';
 import { LoaderWaitService } from '../services/loader-wait.service';
 import { PoloniexApiService } from '../services/poloniex-api.service';
 import { CreateTraderModalComponent } from './create-trader.modal.component';
@@ -38,19 +38,18 @@ export class TraderBotManagerComponent implements OnInit {
   
   balances:any[];
   trade_history:any[];
-  // bot_config:PredictionConfig;
+  open_orders:any[];
   
   traderBotList : TraderBot[];
   selectedBot : TraderBot;
   selectedBotIndex : number;
-  // private _botName:string;
-  // private _botStockId:string;
-  // private _botCurrencyPair:string;
-  // private _botApiKey:string;
+  prediction_average: number;
+  index_list: TriggerIndexItem[];
   
   private change1h:number = 0;
   private change24h:number = 0;
   private change7d:number = 0;
+  private change_pretioction_time:number = 0;
   /**
    *  @date_start - chart timestamp start
    *  @date_end - chart timestamp end
@@ -59,6 +58,13 @@ export class TraderBotManagerComponent implements OnInit {
   private date_start:number;
   private date_end:number;
   private date_period:number;
+  
+  /**
+   * 
+   */
+  private _order_price: number;
+  private _order_amount: number;
+  private _order_total: number;
   
   ngOnInit() {
     this.selectedBot = TraderBotHelper.buildTrader();
@@ -84,17 +90,6 @@ export class TraderBotManagerComponent implements OnInit {
     
     this.selectedBot.name = value;
   }
-
-  public get botIsAvtive():boolean {
-    return this.selectedBot.is_active;
-  }
- 
-  public set botIsAvtive(value:boolean) {
-    if(this.selectedBot.is_active == value)
-      return;
-    
-    this.selectedBot.is_active = value;
-  }
   
   public get botApiKey():string {
     return this.selectedBot.api_key;
@@ -106,6 +101,46 @@ export class TraderBotManagerComponent implements OnInit {
     
     this.selectedBot.api_key = value;
   }
+
+  get orderPrice(): number {
+    return this._order_price;
+  }
+
+  set orderPrice(value: number) {
+    this._order_price = value;
+    this._order_total = 0;
+
+    if(this._order_price && this._order_amount)
+      this._order_total = this._order_price * this._order_amount;
+  }
+
+  get orderAmount(): number {
+    return this._order_amount;
+  }
+
+  set orderAmount(value: number) {
+    this._order_amount = value;
+
+    this._order_total = 0;
+
+    if(this._order_price && this._order_amount)
+      this._order_total = this._order_price * this._order_amount;
+  }
+
+  get orderTotal(): number {
+    return this._order_total;
+  }
+
+  set orderTotal(value: number) {
+    this._order_total = value;
+    this._order_amount = 0;
+
+    if(this._order_total && this._order_price)
+      this._order_amount = this._order_total / this._order_price;
+  }
+
+  // _order_amount
+  // _order_total
   
   // --
   selectBot(index: number): void {
@@ -152,6 +187,46 @@ export class TraderBotManagerComponent implements OnInit {
     });
   };
   
+  traderAddOrderBuy(): void {
+    this.loaderWait.show();
+    this._traderBotService.addOrder(this.selectedBot.uid, {
+      type: 'buy',
+      amount: this.orderAmount,
+      price: this.orderPrice
+    }).then(()=> {
+      this.loaderWait.hide();
+    });
+  }
+
+  traderAddOrderSell(): void {
+    this.loaderWait.show();
+    this._traderBotService.addOrder(this.selectedBot.uid, {
+      type: 'sell',
+      amount: this.orderAmount,
+      price: this.orderPrice
+    }).then(()=> {
+      this.loaderWait.hide();
+    });
+  }
+
+  traderCancelOrder(order_number: number): void {
+    this.loaderWait.show();
+    this._traderBotService.cancelOrder(this.selectedBot.uid, order_number).then(()=> {
+      this.loaderWait.hide();
+    });
+  }
+
+  getTrigetIndexName(uid: string): string {
+    let trigger_index = _.find(TraderBotConst.TRIGGER_INDEXES, (p: any) => {
+      return p.uid == uid;
+    });
+
+    if(trigger_index)
+      return trigger_index.name;
+    
+    return '-';
+  }
+
   protected refreshBotList(selectJustCreated: boolean = false) {
     this.loaderWait.show();
     this._traderBotService.getAllTraders().then(data => {
@@ -198,18 +273,18 @@ export class TraderBotManagerComponent implements OnInit {
   }
   
   protected loadBotData(uid: string):void {
-    var me = this;
-    
     let params = {
       date_start: this.date_start,
       date_end: this.date_end,
       date_period: this.date_period
     };
+    var me = this;
     
     this.loaderWait.show();
     this._traderBotService.getTrader(uid, params)
     .then((response: any) => {
       this.loaderWait.hide();
+      let source_coin = this.selectedBot.currency_pair.slice(0,3);
       let bot = response;
       let data = bot.charts;
       let dataDepth = bot.depth;
@@ -218,13 +293,28 @@ export class TraderBotManagerComponent implements OnInit {
         balances.push({name: key, value: val});
       });
       
-      me.balances = balances;
-      me.trade_history = bot.trade_history;
+      this.balances = balances;
+      this.trade_history = bot.trade_history;
+      this.open_orders = bot.open_orders;
+      this.change1h = +bot.change1h;
+      this.change24h = bot.change24h;
+      this.change7d = bot.change7d;
+      this.change_pretioction_time = bot.change_pretioction_time;
+      this.prediction_average = bot.prediction_average;
+      this.index_list = bot.index_list;
       
-      let trade_list = _.map(me.trade_history, (p:any) => {
+      let trade_list = _.map(this.trade_history, (p:any) => {
         return {
           x: new Date(p.date).getTime(),
           title: p.type,
+          text: `total: ${p.total}, (rate: ${p.rate}, amount: ${p.amount}`
+        };
+      });
+      
+      let order_list = _.map(this.open_orders, (p:any) => {
+        return {
+          x: new Date(p.date).getTime(),
+          title: p.type + '!',
           text: `total: ${p.total}, (rate: ${p.rate}, amount: ${p.amount}`
         };
       });
@@ -291,15 +381,6 @@ export class TraderBotManagerComponent implements OnInit {
             data[i][11], // predict5
           ]);
       }
-      
-      let period_1h = Math.round(Date.now() - (60*60 * 1000));
-      let period_24h = Math.round(Date.now() - (24*60*60 * 1000));
-      let period_7d = Math.round(Date.now() - (7*24*60*60 * 1000));
-      
-      // calculate change:
-      this.change1h = this.calculateChange(average, period_1h);
-      this.change24h = this.calculateChange(average, period_24h);
-      this.change7d = this.calculateChange(average, period_7d);
       
       /**
        *  @chartStock
@@ -373,7 +454,7 @@ export class TraderBotManagerComponent implements OnInit {
         xAxis: {
           events: {
             setExtremes: (e) => {
-              me.setRangeChartData(e.min, e.max);
+              this.setRangeChartData(e.min, e.max);
               // if(typeof(e.rangeSelectorButton)!== 'undefined') {
                 // // alert('count: '+e.rangeSelectorButton.count + 'text: ' +e.rangeSelectorButton.text + ' type:' + e.rangeSelectorButton.type);
               // }
@@ -387,7 +468,7 @@ export class TraderBotManagerComponent implements OnInit {
 
         series: [{
             type: 'candlestick',
-            name: 'AAPL',
+            name: source_coin,
             data: ohlc,
             dataGrouping: {
                 units: groupingUnits
@@ -421,6 +502,12 @@ export class TraderBotManagerComponent implements OnInit {
             onSeries: 'dataseries',
             shape: 'circlepin',
             width: 16
+        }, {
+            type: 'flags',
+            data: order_list,
+            onSeries: 'dataseries',
+            shape: 'circlepin',
+            width: 20
         }]
       };
       
@@ -433,10 +520,92 @@ export class TraderBotManagerComponent implements OnInit {
       } else {
         result = this.prepareDepthDataLinear(dataDepth);
       }
+
+      let series_depth: any[] = result.chart_data;
       
+      // add prediction markers
+      let x_asks = _.findIndex(result.chart_labels, (p: number) => {
+        return +p >= +bot.pretioction_depth_min_asks[0];
+      });
+
+      let x_bids = _.findIndex(result.chart_labels, (p: number) => {
+        return +p >= +bot.pretioction_depth_min_bids[0];
+      });
+
+      let x_deviation_up = _.findIndex(result.chart_labels, (p: number) => {
+        return +p >= +bot.prediction_deviation_up;
+      });
+
+      let x_deviation_down = _.findIndex(result.chart_labels, (p: number) => {
+        return +p >= +bot.prediction_deviation_down;
+      });
+
+      let x_average = _.findIndex(result.chart_labels, (p: number) => {
+        return +p >= +bot.prediction_average;
+      });
+
+      let x_buy = _.findIndex(result.chart_labels, (p: number) => {
+        return +p >= +bot.prediction_buy;
+      });
+
+      let x_sell = _.findIndex(result.chart_labels, (p: number) => {
+        return +p >= +bot.prediction_sell;
+      });
+
+      let depth_prediction_markers = [{
+        x: x_buy,
+        title: 'buy',
+        text: `Prediction buy, amount: ${bot.prediction_buy}`
+      }, {
+        x: x_sell,
+        title: 'sell',
+        text: `Prediction sell, amount: ${bot.prediction_sell}`
+      }];
+
+      let depth_extremums = [{
+        x: x_asks,
+        title: '>',
+        text: `Prediction min asks, amount: ${bot.pretioction_depth_min_asks[0]}`
+      }, {
+        x: x_bids,
+        title: '<',
+        text: `Prediction min bids, amount: ${bot.pretioction_depth_min_bids[0]}`
+      }, {
+        x: x_average,
+        title: '|',
+        text: `Prediction chart average, amount: ${bot.prediction_average}`
+      }, {
+        x: x_deviation_up,
+        title: '>|',
+        text: `Prediction chart up, amount: ${bot.prediction_deviation_up}`
+      }, {
+        x: x_deviation_down,
+        title: '|<',
+        text: `Prediction chart down, amount: ${bot.prediction_deviation_down}`
+      }];
+      
+      series_depth.push({
+          name: 'Extremums',
+          type: 'flags',
+          data: depth_extremums,
+          onSeries: 'dataseries',
+          shape: 'circlepin',
+          width: 14
+      });
+
+      series_depth.push({
+          name: 'Predictions',
+          type: 'flags',
+          data: depth_prediction_markers,
+          onSeries: 'dataseries',
+          shape: 'circlepin',
+          width: 16
+      });
+
       this.orderBookDepth = {
         chart: {
-          type: 'line'
+          type: 'line',
+          zoomType: 'x',
         },
         title: {
           text: ''
@@ -451,14 +620,25 @@ export class TraderBotManagerComponent implements OnInit {
           }
         },
         tooltip: {
-          shared: true
+          shared: true,
+          headerFormat: '{point.key} [' + source_coin + "]<br>",
         },
         plotOptions: {
           line: {
               animation: false
+          },
+          series: {
+            cursor: 'pointer',
+            point: {
+              events: {
+                click: function () {
+                  me.orderPrice = this.category;
+                }
+              }
+            }
           }
         },
-        series: result.chart_data
+        series: series_depth
       };
     },
     (err: any) => {
@@ -472,7 +652,7 @@ export class TraderBotManagerComponent implements OnInit {
       let chart_data_volume: Array<number> = [];
       let chart_data_asks_depth: Array<number> = [];
       let chart_data_bids_depth: Array<number> = [];
-      let chart_labels: Array<string> = [];
+      let chart_labels: Array<number> = [];
       let source_coin = this.selectedBot.currency_pair.slice(0,3);
       
       
@@ -486,7 +666,7 @@ export class TraderBotManagerComponent implements OnInit {
           chart_data_volume.unshift(data.bids[i][1]);
           chart_data_asks_depth.unshift(0);
           chart_data_bids_depth.unshift(total_coins);
-          chart_labels.unshift(data.bids[i][0]+' ' + source_coin);
+          chart_labels.unshift(+data.bids[i][0]);
       }
       
       for(let i = 0, total_coins:number = 0, btc_total:number = 0; i < data.asks.length; i++) {
@@ -499,7 +679,7 @@ export class TraderBotManagerComponent implements OnInit {
           chart_data_volume.push(data.asks[i][1]);
           chart_data_asks_depth.push(total_coins);
           chart_data_bids_depth.push(0);
-          chart_labels.push(data.asks[i][0]+' ' + source_coin);
+          chart_labels.push(+data.asks[i][0]);
       }
         
       return {
@@ -507,8 +687,8 @@ export class TraderBotManagerComponent implements OnInit {
           chart_data: [
                 {data: chart_data_volume_btc, name: source_coin, type: 'column', visible: false},
                 {data: chart_data_volume, name: 'Coins', type: 'column'},
-                {data: chart_data_asks_depth, name: 'Asks Coins', type: 'area'},
-                {data: chart_data_bids_depth, name: 'Bids Coins', type: 'area'},
+                {data: chart_data_asks_depth, name: 'Asks', type: 'area'},
+                {data: chart_data_bids_depth, name: 'Bids', type: 'area'},
                 {data: chart_data_total_btc, name: source_coin + ' Depth', type: 'area', visible: false}
             ]
       }
@@ -544,22 +724,5 @@ export class TraderBotManagerComponent implements OnInit {
     }
     
     return result;
-  }
-  
-  /**
-   *  @charts Array [time, value]
-   *  @start_point [timestamp]
-   *  @return number
-   */
-  private calculateChange(charts:any[], start_point:number) : number
-  {
-    let current = _.last(charts);
-    let destionation = _.findLast(charts, (p) => {
-      return  p[0] < start_point;
-    });
-    
-    let result:number = 100 - (+destionation[1] / +current[1] * 100);
-    
-    return +result.toFixed(2);
   }
 }

@@ -1,14 +1,46 @@
 <div class="row">
+  <label class="col-md-7">Active</label>
+  <div class="col-md-5">
+    <button type="button" class="btn btn-sm"
+      [(ngModel)]="config.is_active" btnCheckbox
+      [ngClass]="{'btn-info' : config.is_active}"
+      ngDefaultControl>
+      {{config.is_active ? 'Trading...' : 'Disabled'}}
+    </button>
+  </div>
+</div>
+
+<div class="row">
   <label class="col-md-7">Reorder Time [ms]</label>
   <div class="col-md-5">
-    <input [(ngModel)]="config.reorder_time" type="text" class="form-control input-sm" placeholder="3600000" />
+    <div class="input-group">
+      <input [(ngModel)]="config.reorder_time" type="text" class="form-control input-sm" placeholder="3600000" />
+      <div class="input-group-btn" dropdown>
+        <button dropdownToggle type="button" class="btn btn-default btn-sm dropdown-toggle">
+          <span class="caret"></span>
+        </button>
+        <ul *dropdownMenu class="dropdown-menu pull-right" role="menu">
+          <li *ngFor="let time_variant of select_time_variants;" role="menuitem"><a href="javascript:void(0)" (click)="config.reorder_time=time_variant.value">{{time_variant.text}}</a></li>
+        </ul>
+      </div>
+    </div>
   </div>
 </div>
 
 <div class="row">
   <label class="col-md-7">Prediction Time [ms]</label>
   <div class="col-md-5">
-    <input [(ngModel)]="config.prediction_time" type="text" class="form-control input-sm" placeholder="3600000" />
+    <div class="input-group">
+        <input [(ngModel)]="config.prediction_time" type="text" class="form-control input-sm" placeholder="3600000" />
+      <div class="input-group-btn" dropdown>
+        <button dropdownToggle type="button" class="btn btn-default btn-sm dropdown-toggle">
+          <span class="caret"></span>
+        </button>
+        <ul *dropdownMenu class="dropdown-menu pull-right" role="menu">
+          <li *ngFor="let time_variant of select_time_variants;" role="menuitem"><a href="javascript:void(0)" (click)="config.prediction_time=time_variant.value">{{time_variant.text}}</a></li>
+        </ul>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -20,20 +52,6 @@
 </div>
 
 <div class="row">
-  <label class="col-md-7">Buy [%]</label>
-  <div class="col-md-5">
-    <input [(ngModel)]="config.percentage_buy" type="text" class="form-control input-sm" placeholder="-1.5"/>
-  </div>
-</div>
-
-<div class="row">
-  <label class="col-md-7">Sell [%]</label>
-  <div class="col-md-5">
-    <input [(ngModel)]="config.percentage_sell" type="text" class="form-control input-sm" placeholder="2.5" />
-  </div>
-</div>
-
-<div class="row">
   <label class="col-md-7">Equilibration</label>
   <div class="col-md-5">
     <input [(ngModel)]="config.balance" type="text" class="form-control input-sm" placeholder="50" />
@@ -41,9 +59,53 @@
 </div>
 
 <div class="row">
-  <label class="col-md-7">Order Book Depth</label>
+  <label class="col-md-7">Buy Mark<u>down</u> [%]</label>
+  <div class="col-md-5">
+    <input [(ngModel)]="config.percentage_buy" type="text" class="form-control input-sm" placeholder="-1.5"/>
+  </div>
+</div>
+
+<div class="row">
+  <label class="col-md-7">Sell Mark<u>up</u> [%]</label>
+  <div class="col-md-5">
+    <input [(ngModel)]="config.percentage_sell" type="text" class="form-control input-sm" placeholder="2.5" />
+  </div>
+</div>
+
+<h4>Depth options:</h4>
+
+<div class="row">
+  <label class="col-md-7">Visible Orders</label>
   <div class="col-md-5">
     <input [(ngModel)]="config.order_book_depth" type="text" class="form-control input-sm" placeholder="50" />
+  </div>
+</div>
+
+<div class="row">
+  <label class="col-md-7">Smoth Up [%]</label>
+  <div class="col-md-5">
+    <input [(ngModel)]="config.extremum_smoth_pesentage_up" type="text" class="form-control input-sm" placeholder="50" />
+  </div>
+</div>
+
+<div class="row">
+  <label class="col-md-7">Smoth Down [%]</label>
+  <div class="col-md-5">
+    <input [(ngModel)]="config.extremum_smoth_pesentage_down" type="text" class="form-control input-sm" placeholder="50" />
+  </div>
+</div>
+
+<div class="row">
+  <label class="col-md-7">Volume Filter Asks [%]</label>
+  <div class="col-md-5">
+    <input [(ngModel)]="config.depth_pesentage_volume_filter_asks" type="text" class="form-control input-sm" placeholder="50" />
+  </div>
+</div>
+
+<div class="row">
+  <label class="col-md-7">Volume Filter Bids [%]</label>
+  <div class="col-md-5">
+    <input [(ngModel)]="config.depth_pesentage_volume_filter_bids" type="text" class="form-control input-sm" placeholder="50" />
   </div>
 </div>
 

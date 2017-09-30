@@ -28,43 +28,36 @@
     </div>
   </div>
 </div>
-<div class="row">
-  <label class="col-md-7">Average period [ms]</label>
-  <div class="col-md-5">
-    <input [(ngModel)]="config.average_period" type="text" class="form-control input-sm" placeholder="3600000" />
-  </div>
-</div>
+
+<h4>Actions on trigger</h4>
 
 <div class="row">
-  <label class="col-md-7">Sleep period [ms]</label>
-  <div class="col-md-5">
-    <input [(ngModel)]="config.sleep_period" type="text" class="form-control input-sm" placeholder="3600000" />
-  </div>
-</div>
-
-
-<h4>Options on trigger</h4>
-<div class="row" *ngFor="let option_select of trigger_options_list">
-  <label class="col-md-7">
-    <ng-select
-        [items]="option_select.options_trigger_select"
-        [active]="option_select.value_options_trigger_select"
-        (selected)="selectTriggerOption($event, option_select)">
-    </ng-select>
-  </label>
-  <div class="col-md-5">
-    <div class="input-group">
-      <input type="text" class="form-control" [(ngModel)]="option_select.option.value" />
-      <div class="input-group-btn">
-        <button (click)="removeTriggerOption(option_select)" class="btn btn-default"><i class="fa fa-remove text-danger"></i></button>
+  <div class="list-group">
+    <a href="javascript:void(0)" class="list-group-item" *ngFor="let action_select of trigger_actions_list">
+      <div class="row">
+        <label class="col-md-7">
+          <ng-select
+              [items]="action_select.actions_trigger_select"
+              [active]="action_select.value_actions_trigger_select"
+              (selected)="selectTriggerAction($event, action_select)">
+          </ng-select>
+        </label>
+        <div class="col-md-5">
+          <div class="input-group">
+            <input type="text" class="form-control" [(ngModel)]="action_select.action.value" />
+            <div class="input-group-btn">
+              <button (click)="removeTriggerAction(action_select)" class="btn btn-default"><i class="fa fa-remove text-danger"></i></button>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+    </a>
   </div>
 </div>
 <div class="row">
   <div class="col-md-12">
-    <button type="button" class="btn btn-default btn-sm" (click)="addTriggerOption()">
-      <i class="fa fa-plus text-success"></i>&nbsp;Add Option
+    <button type="button" class="btn btn-default btn-sm" (click)="addTriggerAction()">
+      <i class="fa fa-plus text-success"></i>&nbsp;Add Action
     </button>
 </div>
 </div>
