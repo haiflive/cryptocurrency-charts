@@ -87,7 +87,7 @@
                   }"
                   (click)="traderAddOrderBuy()"
                 >
-                  <i class ="fa fa-plus"></i>&nbsp;Buy [ZEC]
+                  <i class ="fa fa-plus"></i>&nbsp;Buy [{{trading_coin_code}}]
                 </button>
                 <button class="btn btn-default"
                 [ngClass]="{
@@ -97,7 +97,7 @@
                 }"
                   (click)="traderAddOrderSell()"
                 >
-                  <i class ="fa fa-minus"></i>&nbsp;Sell [ZEC]
+                  <i class ="fa fa-minus"></i>&nbsp;Sell [{{trading_coin_code}}]
                 </button>
               </div>
             </div>
@@ -109,8 +109,9 @@
           Balance
         </div>
         <div class="panel-body">
-          <ul>
-            <li *ngFor="let balance of balances">[{{balance.name}}]: {{balance.value}}</li>
+          <ul *ngIf="balances">
+            <li>Trading [{{trading_coin_code}}]: <a (click)="orderAmount=balances.trading" style="cursor:pointer;">{{balances.trading||0}}</a></li>
+            <li>Source [{{source_coin_code}}]: <a (click)="orderTotal=balances.source" style="cursor:pointer;">{{balances.source||0}}</a></li>
           </ul>
         </div>
       </div>
@@ -145,7 +146,7 @@
               Rate:&nbsp;  {{order.rate}}<br>
               Amount:&nbsp;{{order.amount}}<br>
               Total: &nbsp;{{order.total}}<br>
-              Date: &nbsp; {{order.date}}
+              Date: &nbsp; {{timestampToUtcDate(order.date)}}
             </a>
           </div>
         </div>
@@ -162,7 +163,6 @@
               <th style="width:20px;"></th>
               <th>Amount</th>
               <th>Rate</th>
-              <th>Fee</th>
               <th>Total</th>
               <th>Date</th>
             </tr>
@@ -171,11 +171,10 @@
                 'fa-plus text-success' : trade.type == 'buy',
                 'fa-minus text-danger' : trade.type == 'sell'
               }"></i></td>
-              <td>{{trade.amount}}</td>
+              <td><span tooltip="Fee: {{(+trade.fee * +trade.amount).toFixed(8)}} ({{+trade.fee * 100}}%)" placement="bottom">{{trade.amount}}</span></td>
               <td>{{trade.rate}}</td>
-              <td>{{trade.fee}}</td>
               <td>{{trade.total}}</td>
-              <td>{{trade.date}}</td>
+              <td>{{timestampToUtcDate(trade.date)}}</td>
             <tr>
           </table>
         </div>
@@ -193,19 +192,20 @@
       Options <span *ngIf="selectedBot">[{{selectedBot.name}} ({{selectedBot.stock_id}}) {{selectedBot.currency_pair}}]</span>
     </div>
     <div class="panel-body">
-      <div class="row">
-        <label class="col-md-7">Name</label>
-        <div class="col-md-5">
-          <input type="text" class="form-control input-sm" [(ngModel)]="botName" />
+      <div class="well well-sm">
+        <div class="row">
+          <label class="col-md-7">Name</label>
+          <div class="col-md-5">
+            <input type="text" class="form-control input-sm" [(ngModel)]="botName" />
+          </div>
+        </div>
+        <div class="row">
+          <label class="col-md-7">API key</label>
+          <div class="col-md-5">
+            <input type="text" class="form-control input-sm" [ngModel]="botApiKey" disabled />
+          </div>
         </div>
       </div>
-      <div class="row">
-        <label class="col-md-7">API key</label>
-        <div class="col-md-5">
-          <input type="text" class="form-control input-sm" [ngModel]="botApiKey" disabled />
-        </div>
-      </div>
-      <h4>Taderer Options:</h4>
       <prediction-content [bot-config]="selectedBot.bot_config"></prediction-content>
       <hr>
       <div class="row">

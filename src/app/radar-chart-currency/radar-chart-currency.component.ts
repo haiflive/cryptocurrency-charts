@@ -190,7 +190,10 @@ export class RadarChartCurrencyComponent implements OnInit {
   // --
 
   private refreshChartData():void {
-    
+    /**
+     * observable from subject
+     * audit or auditTime(1000)
+     */
     let cyrrency_code:string = this.value_select.id;
     let cyrrency_initial_code:string = 'BTC';
     if(this.value_select.id == 'USDT') {
@@ -324,6 +327,9 @@ export class RadarChartCurrencyComponent implements OnInit {
   
   /**
    *  refresh chart Throttle
+   * need use auditTime
+   * need use switch
+   * need use throttle
    */
   private observableThrottle;
   private observableThrottleSubscribe;

@@ -4,7 +4,7 @@ import { RouterModule }   from '@angular/router';
 import { HttpModule }    from '@angular/http';
 import { SelectModule } from 'ng2-select-compat'
 import { FormsModule } from '@angular/forms';
-import { TabsModule, ButtonsModule, ModalModule, BsDropdownModule } from 'ngx-bootstrap';
+import { TabsModule, ButtonsModule, ModalModule, BsDropdownModule, TooltipModule } from 'ngx-bootstrap';
 import { Ng2HighchartsModule } from 'ng2-highcharts';
 
 // services:
@@ -47,6 +47,7 @@ import { PredictionTriggerComponent } from './trader-bot-manager/prediction.trig
     ButtonsModule.forRoot(),
     ModalModule.forRoot(),
     BsDropdownModule.forRoot(),
+    TooltipModule.forRoot(),
     RouterModule.forRoot([
       {
         path: '', // currency-list

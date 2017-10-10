@@ -34,8 +34,12 @@ export class PredictionTriggerComponent implements OnInit {
       }
     });
     
-    if(this.index_select.length > 0)
-      this.value_index_select = [this.index_select[0]];
+    this.value_index_select = [_.find(this.index_select, (p:any)=> {
+      return p.id == this.config.index_name;
+    })];
+    
+    if(_.isEmpty(this.value_index_select))
+      this.value_index_select = [_.first(this.index_select)];
 
     this.trigger_actions_list = [];
     this.config.actions.forEach((action:TriggerAction) => {
@@ -59,8 +63,14 @@ export class PredictionTriggerComponent implements OnInit {
     });
   }
 
+  selectTriggerIndex(value:any):void {
+    this.config.index_name = value.id
+    this.value_index_select = [value];
+  }
+
   selectTriggerAction(item: {id: string, text: string}, action_select: TriggerActionSelect): void {
-    action_select.action.name = item.id;
+    action_select.action.param_name = item.id;
+    action_select.value = [item];
     // this.config.actions[?].name = item.id; // not need change by referance
   }
   

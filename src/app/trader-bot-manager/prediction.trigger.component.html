@@ -6,7 +6,7 @@
       <ng-select
           [items]="index_select"
           [active]="value_index_select"
-          (selected)="selectIndex($event)">
+          (selected)="selectTriggerIndex($event)">
       </ng-select>
       </div>
       <div class="col-md-5">
@@ -18,8 +18,8 @@
               &nbsp;<span class="caret"></span>
             </button>
             <ul *dropdownMenu class="dropdown-menu pull-right" role="menu">
-              <li role="menuitem"><a href="javascript:void(0)" (click)="config.index_comparsion=indexComparsion.less_than_index">&quot;&gt;&quot;&nbsp;Less than index</a></li>
-              <li role="menuitem"><a href="javascript:void(0)" (click)="config.index_comparsion=indexComparsion.greater_than_index">&quot;&lt;&quot;&nbsp;Greater than index</a></li>
+              <li role="menuitem" [ngClass]="{'active' : config.index_comparsion===indexComparsion.greater_than_index}"><a href="javascript:void(0)" (click)="config.index_comparsion=indexComparsion.greater_than_index">&quot;&lt;&quot;&nbsp;Greater than index</a></li>
+              <li role="menuitem" [ngClass]="{'active' : config.index_comparsion===indexComparsion.less_than_index}"><a href="javascript:void(0)" (click)="config.index_comparsion=indexComparsion.less_than_index">&quot;&gt;&quot;&nbsp;Less than index</a></li>
             </ul>
           </div>
           <input [(ngModel)]="config.comparsion_value" type="text" class="form-control input-sm" placeholder="0.65" />
@@ -33,12 +33,12 @@
 
 <div class="row">
   <div class="list-group">
-    <a href="javascript:void(0)" class="list-group-item" *ngFor="let action_select of trigger_actions_list">
+    <a class="list-group-item" *ngFor="let action_select of trigger_actions_list">
       <div class="row">
         <label class="col-md-7">
           <ng-select
-              [items]="action_select.actions_trigger_select"
-              [active]="action_select.value_actions_trigger_select"
+              [items]="action_select.list"
+              [active]="action_select.value"
               (selected)="selectTriggerAction($event, action_select)">
           </ng-select>
         </label>
