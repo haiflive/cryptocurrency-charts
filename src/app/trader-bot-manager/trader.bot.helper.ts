@@ -106,16 +106,16 @@ export class TraderBotHelper {
         is_active: false,
         reorder_time: 30 * 60 *1000, // default 30 min
         prediction_time: 3 * 24 * 60 * 60 * 1000, // default 3 days
-        percentage_supply_source: 60,
-        percentage_supply_trading: 60,
+        percentage_supply_source: 90,
+        percentage_supply_trading: 90,
         percentage_buy: 5,
         percentage_sell: 10,
         balance: 50,
         steps: 3,
-        steps_price_multiplier_buy: 0.9,
-        steps_price_multiplier_sell: 0.9,
-        steps_amount_multiplier_buy: 1.2,
-        steps_amount_multiplier_sell: 1.2,
+        steps_price_multiplier_buy: 1,
+        steps_price_multiplier_sell: 1,
+        steps_amount_multiplier_buy: 1,
+        steps_amount_multiplier_sell: 1,
         order_book_depth: 200,
         extremum_smoth_pesentage_up: 2.5, // %
         extremum_smoth_pesentage_down: 2.5, // %

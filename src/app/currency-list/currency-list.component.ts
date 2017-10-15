@@ -66,7 +66,7 @@ export class CurrencyListComponent implements OnInit {
       var chartQuoteVolumePersentage : Array<number> = [];
       
       _.each(poloniexTickerData, (p:any, key:any) => {
-        let code = _.last(key.split('_'));
+        let code = _.last(key.match(/[a-zA-Z]+/g));
         let currencyObj = _.find(coinmarketcapTickerData, (p:any) => p.symbol == code);
         let isTopCurrency = false;
         if(_.find(topCoinmarketcapTickerData, (p:any) => p.symbol == code)) {

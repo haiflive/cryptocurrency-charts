@@ -14,7 +14,7 @@
                 (click)="selectBot(i)"
                 [ngClass]="{'active' : selectedBotIndex == i}"
                 href="javascript:void(0)" class="list-group-item"
-              >#{{bot.id}} {{bot.name}} [{{bot.currency_pair}}] <i (click)="removeBot(bot.uid)" class="fa fa-remove text-danger pull-right"></i></a>
+              >#{{bot.id}} {{bot.name}} [{{bot.currency_pair}}] <i (click)="removeBot(bot.uid); $event.stopPropagation()" class="fa fa-remove text-danger pull-right"></i></a>
           </div>
         </div>
       </div>
@@ -60,20 +60,20 @@
         <div class="panel-body">
           <div class="list-group">
             <div class="row">
-              <label class="col-md-7">Price:</label>
-              <div class="col-md-5">
+              <label class="col-md-5">Price:</label>
+              <div class="col-md-7">
                 <input type="text" [(ngModel)]="orderPrice" class="form-control input-sm" placeholder="10" />
               </div>
             </div>
             <div class="row">
-              <label class="col-md-7">Amount:</label>
-              <div class="col-md-5">
+              <label class="col-md-5">Amount:</label>
+              <div class="col-md-7">
                 <input type="text" [(ngModel)]="orderAmount" class="form-control input-sm" placeholder="20" />
               </div>
             </div>
             <div class="row">
-              <label class="col-md-7">Total:</label>
-              <div class="col-md-5">
+              <label class="col-md-5">Total:</label>
+              <div class="col-md-7">
                 <input type="text" [(ngModel)]="orderTotal" class="form-control input-sm" placeholder="30" />
               </div>
             </div>

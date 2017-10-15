@@ -150,8 +150,10 @@ export class TraderBotManagerComponent implements OnInit {
     
     let bot: TraderBot = this.traderBotList[this.selectedBotIndex];
     
-    if(!bot)
+    if(!bot) {
+      console.log('BUG, need clear bot data');
       return void 0;
+    }
     
     this.selectedBot = bot;
     
@@ -186,7 +188,7 @@ export class TraderBotManagerComponent implements OnInit {
     this.loaderWait.show();
     this.selectedBot.bot_config.triggers;
     let action = this.selectedBot.bot_config.triggers[0].actions[0];
-    debugger;
+    
     this._traderBotService.updateTrader(this.selectedBot).then(data => {
       this.loaderWait.hide();
     });
@@ -198,7 +200,11 @@ export class TraderBotManagerComponent implements OnInit {
       type: 'buy',
       amount: this.orderAmount,
       price: this.orderPrice
-    }).then(()=> {
+    }).then((res)=> {
+      if(!res.success) {
+        alert(res.message);
+      }
+      
       this.loaderWait.hide();
     });
   }
@@ -303,7 +309,7 @@ export class TraderBotManagerComponent implements OnInit {
       }
 
       this.balances = bot.balances;
-      let coin_codes = bot.currency_pair.split("_");
+      let coin_codes = bot.currency_pair.match(/[a-zA-Z]+/g);
       this.source_coin_code = coin_codes[0];
       this.trading_coin_code = coin_codes[1];
 
@@ -324,7 +330,8 @@ export class TraderBotManagerComponent implements OnInit {
         };
       });
       
-      let order_list = _.map(this.open_orders, (p:any) => {
+      // --------------- configure charts ------------
+      let order_list_charts = _.map(this.open_orders, (p:any) => {
         return {
           x: p.date * 1000,
           title: p.type + '!',
@@ -405,44 +412,19 @@ export class TraderBotManagerComponent implements OnInit {
        */
       this.chartStock = {
         rangeSelector: {
-            buttons: [{
-                type: 'hour',
-                count: 12,
-                text: '12h'
-            }, {
-              type: 'day',
-              count: 1,
-              text: '24h'
-            }, {
-              type: 'day',
-              count: 7,
-              text: '7d'
-            }, {
-              type: 'month',
-              count: 1,
-              text: '1m'
-            }, {
-              type: 'month',
-              count: 3,
-              text: '3m'
-            }, {
-              type: 'year',
-              count: 1,
-              text: '1y'
-            }, {
-              type: 'ytd',
-              text: 'YTD'
-            }, {
-              type: 'all',
-              text: 'All'
-            }],
-            selected: 2,
-            inputEnabled: false
+          buttons: [
+            { type: 'hour', count: 12, text: '12h' },
+            { type: 'day', count: 1, text: '24h' },
+            { type: 'day', count: 7, text: '7d' },
+            { type: 'month', count: 1, text: '1m' },
+            { type: 'month', count: 3, text: '3m' },
+            { type: 'year', count: 1, text: '1y' },
+            { type: 'ytd', text: 'YTD' },
+            { type: 'all', text: 'All'}
+          ],
+          selected: 2,
+          inputEnabled: false
         },
-
-        // title: {
-            // text: 'chart Title'
-        // },
         yAxis: [{
             labels: {
                 align: 'right',
@@ -466,7 +448,6 @@ export class TraderBotManagerComponent implements OnInit {
             offset: 0,
             lineWidth: 2
         }],
-        
         // xAxis: {
         //   events: {
         //     setExtremes: (e) => {
@@ -477,11 +458,9 @@ export class TraderBotManagerComponent implements OnInit {
         //     }
         //   }
         // },
-
         tooltip: {
             split: true
         },
-
         series: [{
             type: 'candlestick',
             name: this.source_coin_code,
@@ -520,14 +499,14 @@ export class TraderBotManagerComponent implements OnInit {
             width: 16
         }, {
             type: 'flags',
-            data: order_list,
+            data: order_list_charts,
             onSeries: 'dataseries',
             shape: 'circlepin',
             width: 20
         }]
       };
       
-      
+      // ----------- confugure depth ---------------
       let result : any;
       let chartGroupingDecimals = 6;
       
@@ -594,7 +573,8 @@ export class TraderBotManagerComponent implements OnInit {
         let item = {
           x: x_order,
           title: 'buy',
-          text: `[${step_buy}] Prediction buy<br>Rate: ${order.rate}<br>Amount: ${order.amount}`
+          text: `[${step_buy}] Prediction buy<br>Rate: ${order.rate}<br>Amount: ${order.amount}`,
+          data: order
         };
 
         depth_prediction_steps_markers.push(item);
@@ -614,7 +594,8 @@ export class TraderBotManagerComponent implements OnInit {
         let item = {
           x: x_order,
           title: 'sell',
-          text: `[${step_sell}] Prediction sell<br>Rate: ${order.rate}<br>Amount: ${order.amount}`
+          text: `[${step_sell}] Prediction sell<br>Rate: ${order.rate}<br>Amount: ${order.amount}`,
+          data: order
         };
 
         depth_prediction_steps_markers.push(item);
@@ -641,6 +622,23 @@ export class TraderBotManagerComponent implements OnInit {
         title: '|<',
         text: `Prediction chart down<br>Amount: ${bot.prediction_deviation_down}`
       }];
+
+      //-- current orders on depth chart
+      let order_list_depth = _.map(this.open_orders, (p:any) => {
+        let x_order = _.findIndex(result.chart_labels, (clbl: number) => {
+          return +clbl >= +p.rate;
+        });
+        
+        if(x_order == -1 && p.type == 'sell') {
+          x_order = result.chart_labels.length - 1;
+        }
+
+        return {
+          x: x_order,
+          title: p.type + '!',
+          text: `total: ${p.total}, (rate: ${p.rate}, amount: ${p.amount}`
+        };
+      });
       
       series_depth.push({
           name: 'Extremums',
@@ -649,12 +647,17 @@ export class TraderBotManagerComponent implements OnInit {
           onSeries: 'dataseries',
           shape: 'circlepin',
           width: 14
-      });
-
-      series_depth.push({
+      },{
         name: 'Predictions',
         type: 'flags',
         data: depth_prediction_steps_markers,
+        onSeries: 'dataseries',
+        shape: 'circlepin',
+        width: 16
+      }, {
+        name: 'Orders',
+        type: 'flags',
+        data: order_list_depth,
         onSeries: 'dataseries',
         shape: 'circlepin',
         width: 16
@@ -664,7 +667,8 @@ export class TraderBotManagerComponent implements OnInit {
         data: depth_prediction_markers,
         onSeries: 'dataseries',
         shape: 'circlepin',
-        width: 16
+        width: 16,
+        visible: false
       });
 
       this.orderBookDepth = {
@@ -697,7 +701,11 @@ export class TraderBotManagerComponent implements OnInit {
             point: {
               events: {
                 click: function () {
-                  me.orderPrice = this.category;
+                  if(_.isEmpty(this.data))
+                    return;
+                  
+                  me.orderPrice = this.data.rate;
+                  me.orderAmount = this.data.amount;
                 }
               }
             }
