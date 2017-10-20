@@ -158,7 +158,7 @@ export class TraderBotManagerComponent implements OnInit {
     }
     
     this.selectedBot = bot;
-    // this.loadBotData(this.selectedBot.uid);
+    this.loadBotData(this.selectedBot.uid);
     if(this._watch_trader_subscription) {
       this._watch_trader_subscription.unsubscribe();
       delete this._watch_trader_subscription;
