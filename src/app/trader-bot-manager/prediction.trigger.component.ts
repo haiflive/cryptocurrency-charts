@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Trigger, IndexComparsion, TriggerAction, TraderBotConst } from '../services/types/trader.types';
+import { Trigger, IndexComparsion, TriggerAction, TraderBotConst, ActionValueOperator } from '../services/types/trader.types';
 import { TraderBotHelper, TriggerActionSelect } from './trader.bot.helper';
 
 import * as _ from "lodash";
@@ -12,19 +12,14 @@ export class PredictionTriggerComponent implements OnInit {
   @Input('trigger-config') config: Trigger | Trigger; // see more: trader.types.ts:2-3
   
   public indexComparsion = IndexComparsion;
+  public actionValueOperator = ActionValueOperator;
   // index select
   index_select: any[];
   value_index_select: any[];
   
   trigger_actions_list: TriggerActionSelect[];
   
-  constructor() {
-    //this.index_comparsion = IndexComparsion.less_than_index;
-    // --
-    
-    // this.trigger_actions_list = [];
-    // this.addTriggerAction();
-  }
+  constructor() {}
 
   ngOnInit() {
     this.index_select = _.map(TraderBotConst.TRIGGER_INDEXES, (p:any) => {

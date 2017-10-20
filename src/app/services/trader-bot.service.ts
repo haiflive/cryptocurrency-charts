@@ -1,6 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Http, RequestOptions, Headers, URLSearchParams } from '@angular/http';
 import { TraderBot } from '../services/types/trader.types';
+import { Observable, Subject } from 'rxjs';
+
+import * as io from "socket.io-client";
 
 const BASE_URL = `/traderbot`;
 import * as _ from "lodash";
@@ -16,23 +19,8 @@ export class TraderBotService {
             .catch(this.handleError);
   }
   
-  getTrader(uid: string, queryParams?: {date_start: number, date_end: number, date_period: number}): Promise<any> {
-    
-    _.defaults(queryParams, {
-      date_start: Math.round((Date.now() / 1000) - (8 * 24 * 60 * 60)),  // default 8 days
-      date_end: Math.round(Date.now() / 1000),  // now
-      date_period: 1800
-    });
-    
-    let params: URLSearchParams = new URLSearchParams();
-    params.set('date_start', queryParams.date_start.toString());
-    params.set('date_end', queryParams.date_end.toString());
-    params.set('date_period', queryParams.date_period.toString());
-    
-    let requestOptions = new RequestOptions();
-    requestOptions.search = params;
-    
-    return this.http.get(BASE_URL + '/' + uid, requestOptions)
+  getTrader(uid: string): Promise<any> {
+    return this.http.get(BASE_URL + '/' + uid)
             .toPromise()
             .then(response => response.json())
             .catch(this.handleError);
@@ -85,6 +73,78 @@ export class TraderBotService {
           .then(response => response.json())
           .catch(this.handleError);
   }
+
+  // -- socket
+  protected _socket;
+  protected _is_socket_connected = false;
+  // protected _refresh_data_subject: Subject<any>;
+
+  watchTrader(trader_uid: string) : Observable<any> {
+    let url = location.protocol+'//'+location.hostname+':8181';
+    
+    if(!this._socket)
+      this._socket = io(url);
+
+    let observable = new Observable(observer => {
+      let me = this;
+      this._socket.on('connect', () => {
+        me._socket.emit('watch-trader', { trader_uid: trader_uid });
+      });
+
+      this._socket.on('trader-changed', (data) => {
+        if(!data.success)
+          console.log('somthing wrong');
+        
+        observer.next(data.data);
+      });
+
+      this._socket.on('disconnect', function() {
+        console.log('socket disconnect');
+        observer.complete();
+        delete me._socket;
+      });
+
+      return () => { // just called unsubscribe
+        this._socket.disconnect();
+      };  
+    });
+
+    return observable;
+
+    // if(!this._is_socket_connected)
+    //   this.setupWebSocketConnection();
+    // console.log('connected status 1: ' + this._socket.connected);
+
+    // let me = this;
+    // this._socket.on('connect', function() {
+    //   console.log('connected status 2: ' + me._socket.connected);
+    // });
+
+    // // subscribe:
+    // me._socket.emit('watch-trader', { trader_uid: trader_uid });
+
+    // this._socket.on('disconnect', function(){});
+
+    // // watching:
+    // this._socket.on('trader-changed', (data) => {
+    //   if(!data.success)
+    //     console.log('somthing wrong');
+      
+    //   console.log('recived data: ' + data.data);
+    //   this._refresh_data_subject.next(data.data);
+    // });
+    
+    // return this._refresh_data_subject;
+  }
+
+  // setupWebSocketConnection() {
+  //   this._refresh_data_subject = new Subject();
+  //   this._is_socket_connected = true;
+    
+  //   let url = location.protocol+'//'+location.hostname+':8181';
+
+  //   this._socket = io(url);
+  // }
 
   private handleError(error: any): Promise<any> {
     console.error('An error occurred', error);

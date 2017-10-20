@@ -142,7 +142,7 @@
 <div class="row">
   <label class="col-md-7">Buy Mark<u>down</u> [%]</label>
   <div class="col-md-5">
-    <input [(ngModel)]="config.percentage_buy" type="text" class="form-control input-sm" placeholder="-1.5"/>
+    <input [(ngModel)]="config.percentage_buy" type="text" class="form-control input-sm" placeholder="1.5"/>
   </div>
 </div>
 
@@ -150,6 +150,19 @@
   <label class="col-md-7">Sell Mark<u>up</u> [%]</label>
   <div class="col-md-5">
     <input [(ngModel)]="config.percentage_sell" type="text" class="form-control input-sm" placeholder="2.5" />
+  </div>
+</div>
+
+<div class="row">
+  <label class="col-md-7">Const Sell Mark<u>up</u> [%]</label>
+  <div class="col-md-5">
+    <input [(ngModel)]="config.percentage_buy_statical" type="text" class="form-control input-sm" placeholder="0.5" />
+  </div>
+</div>
+<div class="row">
+  <label class="col-md-7">Const Buy Mark<u>down</u> [%]</label>
+  <div class="col-md-5">
+    <input [(ngModel)]="config.percentage_sell_statical" type="text" class="form-control input-sm" placeholder="0.5"/>
   </div>
 </div>
 

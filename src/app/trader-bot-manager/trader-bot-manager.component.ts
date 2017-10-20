@@ -9,6 +9,7 @@ import { LoaderWaitService } from '../services/loader-wait.service';
 import { PoloniexApiService } from '../services/poloniex-api.service';
 import { CreateTraderModalComponent } from './create-trader.modal.component';
 import { TraderBotHelper } from './trader.bot.helper';
+import { Observable, Subscription } from 'rxjs';
 
 import * as _ from "lodash";
 
@@ -145,6 +146,7 @@ export class TraderBotManagerComponent implements OnInit {
   // _order_total
   
   // --
+  protected _watch_trader_subscription: any;
   selectBot(index: number): void {
     this.selectedBotIndex = index;
     
@@ -156,8 +158,18 @@ export class TraderBotManagerComponent implements OnInit {
     }
     
     this.selectedBot = bot;
-    
-    this.loadBotData(this.selectedBot.uid);
+    // this.loadBotData(this.selectedBot.uid);
+    if(this._watch_trader_subscription) {
+      this._watch_trader_subscription.unsubscribe();
+      delete this._watch_trader_subscription;
+    }
+
+    this._watch_trader_subscription = this._traderBotService.watchTrader(this.selectedBot.uid)
+      .subscribe((data) => {
+        console.log('data recived: ');
+        console.log(data);
+        this.setupBotData(data);
+      });
   }
   
   createBot():void {
@@ -289,18 +301,17 @@ export class TraderBotManagerComponent implements OnInit {
   }
   
   protected loadBotData(uid: string):void {
-    let params = {
-      date_start: this.date_start,
-      date_end: this.date_end,
-      date_period: this.date_period
-    };
-    var me = this;
-    
     this.loaderWait.show();
-    this._traderBotService.getTrader(uid, params)
-    .then((response: any) => {
+    this._traderBotService.getTrader(uid)
+    .then((data) => {
       this.loaderWait.hide();
-      let bot = response;
+      this.setupBotData(data);
+      },
+      (err: any) => console.error('Somethin went wrong', err)
+    );
+  }
+
+  protected setupBotData(bot: any) {
       let data = bot.charts;
       let dataDepth = bot.depth;
       
@@ -671,6 +682,8 @@ export class TraderBotManagerComponent implements OnInit {
         visible: false
       });
 
+      let me = this;
+
       this.orderBookDepth = {
         chart: {
           type: 'line',
@@ -701,11 +714,12 @@ export class TraderBotManagerComponent implements OnInit {
             point: {
               events: {
                 click: function () {
-                  if(_.isEmpty(this.data))
-                    return;
-                  
-                  me.orderPrice = this.data.rate;
-                  me.orderAmount = this.data.amount;
+                  if(!_.isEmpty(this.data)) {
+                    me.orderPrice = this.data.rate;
+                    me.orderAmount = this.data.amount;
+                  } else {
+                    me.orderPrice = this.category;
+                  }
                 }
               }
             }
@@ -713,10 +727,6 @@ export class TraderBotManagerComponent implements OnInit {
         },
         series: series_depth
       };
-    },
-    (err: any) => {
-      console.error('Somethin went wrong', err);
-    });
   }
 
   private prepareDepthDataLinear(data:any) : any {

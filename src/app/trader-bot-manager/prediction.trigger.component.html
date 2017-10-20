@@ -13,13 +13,12 @@
         <div class="input-group">
           <div class="input-group-btn" dropdown>
             <button dropdownToggle type="button" class="btn btn-default btn-sm dropdown-toggle">
-              <span *ngIf="config.index_comparsion===indexComparsion.less_than_index">&gt;</span>
-              <span *ngIf="config.index_comparsion===indexComparsion.greater_than_index">&lt;</span>
-              &nbsp;<span class="caret"></span>
+              <span *ngIf="config.index_comparsion===indexComparsion.less_than_value">&lt;</span>
+              <span *ngIf="config.index_comparsion===indexComparsion.greater_than_value">&gt;</span>
             </button>
             <ul *dropdownMenu class="dropdown-menu pull-right" role="menu">
-              <li role="menuitem" [ngClass]="{'active' : config.index_comparsion===indexComparsion.greater_than_index}"><a href="javascript:void(0)" (click)="config.index_comparsion=indexComparsion.greater_than_index">&quot;&lt;&quot;&nbsp;Greater than index</a></li>
-              <li role="menuitem" [ngClass]="{'active' : config.index_comparsion===indexComparsion.less_than_index}"><a href="javascript:void(0)" (click)="config.index_comparsion=indexComparsion.less_than_index">&quot;&gt;&quot;&nbsp;Less than index</a></li>
+              <li role="menuitem" [ngClass]="{'active' : config.index_comparsion===indexComparsion.greater_than_value}"><a href="javascript:void(0)" (click)="config.index_comparsion=indexComparsion.greater_than_value">&gt;</a></li>
+              <li role="menuitem" [ngClass]="{'active' : config.index_comparsion===indexComparsion.less_than_value}"><a href="javascript:void(0)" (click)="config.index_comparsion=indexComparsion.less_than_value">&lt;</a></li>
             </ul>
           </div>
           <input [(ngModel)]="config.comparsion_value" type="text" class="form-control input-sm" placeholder="0.65" />
@@ -44,9 +43,21 @@
         </label>
         <div class="col-md-5">
           <div class="input-group">
-            <input type="text" class="form-control" [(ngModel)]="action_select.action.value" />
+            <div class="input-group-btn" dropdown>
+              <button dropdownToggle type="button" class="btn btn-default btn-sm dropdown-toggle">
+                <span *ngIf="action_select.action.value_operator===actionValueOperator.do_plus">+</span>
+                <span *ngIf="action_select.action.value_operator===actionValueOperator.do_minus">-</span>
+                <span *ngIf="action_select.action.value_operator===actionValueOperator.do_equals">=</span>
+              </button>
+              <ul *dropdownMenu class="dropdown-menu pull-right" role="menu">
+                <li role="menuitem" [ngClass]="{'active' : action_select.action.value_operator===actionValueOperator.do_plus}"><a href="javascript:void(0)" (click)="action_select.action.value_operator=actionValueOperator.do_plus">+</a></li>
+                <li role="menuitem" [ngClass]="{'active' : action_select.action.value_operator===actionValueOperator.do_minus}"><a href="javascript:void(0)" (click)="action_select.action.value_operator=actionValueOperator.do_minus">-</a></li>
+                <li role="menuitem" [ngClass]="{'active' : action_select.action.value_operator===actionValueOperator.do_equals}"><a href="javascript:void(0)" (click)="action_select.action.value_operator=actionValueOperator.do_equals">=</a></li>
+              </ul>
+            </div>
+            <input type="text" class="form-control input-sm" [(ngModel)]="action_select.action.value" />
             <div class="input-group-btn">
-              <button (click)="removeTriggerAction(action_select)" class="btn btn-default"><i class="fa fa-remove text-danger"></i></button>
+              <button (click)="removeTriggerAction(action_select)" class="btn btn-default btn-sm"><i class="fa fa-remove text-danger"></i></button>
             </div>
           </div>
         </div>

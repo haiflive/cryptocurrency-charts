@@ -1,4 +1,5 @@
-import { TraderBot, Trigger, IndexComparsion, TriggerAction, TraderBotConst, PredictionConfig } from '../services/types/trader.types';
+import { TraderBot, Trigger, IndexComparsion, TriggerAction, TraderBotConst, PredictionConfig,
+         ActionValueOperator } from '../services/types/trader.types';
 
 import * as _ from "lodash";
 
@@ -16,8 +17,8 @@ export class TraderBotHelper {
         name: 'New bot',
         api_key: '',
         api_secret: '',
-        stock_id: TraderBotConst.STOCK_EXCHANGE_LIST[0].id,// 'poloniex',
-        currency_pair: 'XMR_ZEC',
+        stock_id: TraderBotConst.STOCK_EXCHANGE_LIST[1].id,// 'bittrex',
+        currency_pair: 'USDT-ZEC',
         bot_config: TraderBotHelper.buildPredictionConfig()
       }
 
@@ -32,8 +33,8 @@ export class TraderBotHelper {
 
       let trigger: Trigger = {
         index_name: trigger_index.uid,
-        index_comparsion: IndexComparsion.greater_than_index,
-        comparsion_value: 50,
+        index_comparsion: IndexComparsion.less_than_value,
+        comparsion_value: 5,
         actions: actions
       };
   
@@ -94,34 +95,59 @@ export class TraderBotHelper {
 
     public static buildTriggerAction() : TriggerAction {
       let action: TriggerAction = {
-        param_name: TraderBotConst.TRIGGER_ACTIONS[0].uid,
-        value: 0, 
+        param_name: TraderBotConst.TRIGGER_ACTIONS[4].uid,
+        value_operator: ActionValueOperator.do_plus,
+        value: 1, 
       };
 
       return action;
     }
 
     public static buildPredictionConfig() : PredictionConfig {
+      let trigger_buy: Trigger = {
+        index_name: 'indexChartDeviation',
+        index_comparsion: IndexComparsion.less_than_value,
+        comparsion_value: 10,
+        actions: [{
+          param_name: 'percentage_buy',
+          value_operator: ActionValueOperator.do_plus,
+          value: 2,
+        }]
+      };
+
+      let trigger_sell: Trigger = {
+        index_name: 'indexChartDeviation',
+        index_comparsion: IndexComparsion.greater_than_value,
+        comparsion_value: 90,
+        actions: [{
+          param_name: 'percentage_sell',
+          value_operator: ActionValueOperator.do_plus,
+          value: 2,
+        }]
+      };
+
       let config: PredictionConfig = {
         is_active: false,
-        reorder_time: 30 * 60 *1000, // default 30 min
-        prediction_time: 3 * 24 * 60 * 60 * 1000, // default 3 days
+        reorder_time: 14 * 24 * 60 * 60 * 1000, // default 14 days
+        prediction_time: 7 * 24 * 60 * 60 * 1000, // default 3 days
         percentage_supply_source: 90,
         percentage_supply_trading: 90,
-        percentage_buy: 5,
+        percentage_buy: 7,
         percentage_sell: 10,
+        percentage_buy_statical: 0.5,
+        percentage_sell_statical: 0.5,
         balance: 50,
-        steps: 3,
-        steps_price_multiplier_buy: 1,
-        steps_price_multiplier_sell: 1,
-        steps_amount_multiplier_buy: 1,
-        steps_amount_multiplier_sell: 1,
-        order_book_depth: 200,
+        steps: 12,
+        steps_price_multiplier_buy: 1.05,
+        steps_price_multiplier_sell: 1.05,
+        steps_amount_multiplier_buy: 1.05,
+        steps_amount_multiplier_sell: 1.05,
+        order_book_depth: 300,
         extremum_smoth_pesentage_up: 2.5, // %
         extremum_smoth_pesentage_down: 2.5, // %
         depth_pesentage_volume_filter_asks: 2.5, // %
         depth_pesentage_volume_filter_bids: 2.5, // %
-        triggers: [TraderBotHelper.buildTrigger()]
+        triggers: [trigger_buy, trigger_sell]
       }
 
       return config;
