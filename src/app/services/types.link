@@ -1,0 +1,2 @@
+# for make link use the following comand:
+mklink /d C:\WebServers\cchart\web\src\app\services\types C:\WebServers\cchart\backend\src\services\types

@@ -84,10 +84,11 @@ export class TraderBotService {
     
     if(!this._socket)
       this._socket = io(url);
-
-    let observable = new Observable(observer => {
+    
+    let observable = Observable.create(observer => {
       let me = this;
       this._socket.on('connect', () => {
+        console.log('socket connect');
         me._socket.emit('watch-trader', { trader_uid: trader_uid });
       });
 
@@ -104,7 +105,14 @@ export class TraderBotService {
         delete me._socket;
       });
 
+      this._socket.on('error', function (err) {
+        debugger;
+        if (err.description) throw err.description;
+        else throw err; // Or whatever you want to do
+      });
+
       return () => { // just called unsubscribe
+        console.log('unsubscribed');
         this._socket.disconnect();
       };  
     });

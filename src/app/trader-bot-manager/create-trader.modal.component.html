@@ -5,6 +5,7 @@
   </button>
 </div>
 <div class="modal-body">
+  <div class="alert alert-warning"><b>Important!</b> Use just one API key for one bot.</div>
   <div class="row">
     <label class="col-md-12">Name</label>
     <div class="col-md-12">
@@ -31,7 +32,7 @@
   <div class="row">
     <label class="col-md-12">API secret</label>
     <div class="col-md-12">
-      <input type="text" class="form-control" [(ngModel)]="trader.api_secret" />
+      <input type="password" class="form-control" [(ngModel)]="trader.api_secret" />
     </div>
   </div>
   <div class="row">

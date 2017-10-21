@@ -158,17 +158,16 @@ export class TraderBotManagerComponent implements OnInit {
     }
     
     this.selectedBot = bot;
-    this.loadBotData(this.selectedBot.uid);
+    this.loadBotData(this.selectedBot.uid, true);
+
     if(this._watch_trader_subscription) {
       this._watch_trader_subscription.unsubscribe();
       delete this._watch_trader_subscription;
     }
 
     this._watch_trader_subscription = this._traderBotService.watchTrader(this.selectedBot.uid)
-      .subscribe((data) => {
-        console.log('data recived: ');
-        console.log(data);
-        this.setupBotData(data);
+      .subscribe((data: any) => {
+        this.loadBotData(this.selectedBot.uid);
       });
   }
   
@@ -300,12 +299,12 @@ export class TraderBotManagerComponent implements OnInit {
     return result;
   }
   
-  protected loadBotData(uid: string):void {
-    this.loaderWait.show();
+  protected loadBotData(uid: string, show_loader: boolean = false):void {
+    if(show_loader) this.loaderWait.show();
     this._traderBotService.getTrader(uid)
     .then((data) => {
-      this.loaderWait.hide();
-      this.setupBotData(data);
+        if(show_loader) this.loaderWait.hide();
+        this.setupBotData(data);
       },
       (err: any) => console.error('Somethin went wrong', err)
     );
