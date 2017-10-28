@@ -4,6 +4,7 @@ import { RouterModule }   from '@angular/router';
 import { HttpModule }    from '@angular/http';
 import { SelectModule } from 'ng2-select-compat'
 import { FormsModule } from '@angular/forms';
+import { APP_BASE_HREF } from '@angular/common';
 import { TabsModule, ButtonsModule, ModalModule, BsDropdownModule, TooltipModule } from 'ngx-bootstrap';
 import { Ng2HighchartsModule } from 'ng2-highcharts';
 
@@ -67,7 +68,8 @@ import { PredictionTriggerComponent } from './trader-bot-manager/prediction.trig
       }
     ])
   ],
-  providers: [ PoloniexApiService, BittrexApiService, CoinmarketcapApiService,
+  providers: [ {provide: APP_BASE_HREF, useValue : '/cchartpanel' },
+               PoloniexApiService, BittrexApiService, CoinmarketcapApiService,
                TraderBotService, LoaderWaitService ],
   bootstrap: [AppComponent]
 })

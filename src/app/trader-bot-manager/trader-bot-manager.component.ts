@@ -49,10 +49,10 @@ export class TraderBotManagerComponent implements OnInit {
   prediction_average: number;
   index_list: TriggerIndexItem[];
   
-  private change1h:number = 0;
-  private change24h:number = 0;
-  private change7d:number = 0;
-  private change_pretioction_time:number = 0;
+  change1h:number = 0;
+  change24h:number = 0;
+  change7d:number = 0;
+  change_pretioction_time:number = 0;
   /**
    *  @date_start - chart timestamp start
    *  @date_end - chart timestamp end
