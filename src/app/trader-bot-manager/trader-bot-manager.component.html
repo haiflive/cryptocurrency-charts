@@ -1,14 +1,17 @@
-<br>
+<div class="col">&nbsp;</div>
+<div class="col">
+  <div class="row">
+
 <div class="col-md-9">
   <div class="row">
     <div class="col-md-4">
-      <div class="panel panel-default">
-        <div class="panel-heading">
+      <div class="card">
+        <div class="card-header">
           Bots List
           <div (click)="createBot()"
-            class="btn btn-default btn-xs pull-right"><i class="fa fa-plus text-success"></i> Add</div>
+            class="btn btn-outline-success btn-sm pull-right"><i class="fa fa-plus text-success"></i> Add</div>
         </div>
-        <div class="panel-body">
+        <div class="card-body">
           <div class="list-group">
             <a *ngFor="let bot of traderBotList; let i = index"
                 (click)="selectBot(i)"
@@ -18,11 +21,11 @@
           </div>
         </div>
       </div>
-      <div class="panel panel-default">
-        <div class="panel-heading">
+      <div class="card">
+        <div class="card-header">
           Indexes
         </div>
-        <div class="panel-body">
+        <div class="card-body">
           <div class="list-group">
             <ul>
               <li *ngFor="let index_item of index_list;">{{getTrigetIndexName(index_item.uid)}}: {{index_item.value}}</li>
@@ -32,8 +35,8 @@
       </div>
     </div>
     <div class="col-md-8">
-      <div class="panel panel-default">
-        <div class="panel-heading">
+      <div class="card">
+        <div class="card-header">
           &nbsp;<span *ngIf="selectedBot">{{selectedBot.name}} ({{selectedBot.stock_id}}) - [{{selectedBot.currency_pair}}]</span>
           <div class="pull-right">7d: <span
               [ngClass]="{'text-success' : change7d > 0,'text-danger' : change7d < 0}">{{change7d.toFixed(2)}}%</span></div>
@@ -44,7 +47,7 @@
           <div class="pull-right"><i class="fa fa-eye"></i> <span
               [ngClass]="{'text-success' : change_pretioction_time > 0,'text-danger' : change_pretioction_time < 0}">{{change_pretioction_time.toFixed(2)}}%</span>,&nbsp;</div>
         </div>
-        <div class="panel-body">
+        <div class="card-body">
           <div [ng2-highstocks]="chartStock" class="graph"></div>
         </div>
       </div>
@@ -53,35 +56,35 @@
   
   <div class="row">
     <div class="col-md-4">
-      <div class="panel panel-default">
-        <div class="panel-heading">
+      <div class="card">
+        <div class="card-header">
           Manual Open Order
         </div>
-        <div class="panel-body">
+        <div class="card-body">
           <div class="list-group">
             <div class="row">
               <label class="col-md-5">Price:</label>
               <div class="col-md-7">
-                <input type="text" [(ngModel)]="orderPrice" class="form-control input-sm" placeholder="10" />
+                <input type="text" [(ngModel)]="orderPrice" class="form-control form-control-sm" placeholder="10" />
               </div>
             </div>
             <div class="row">
               <label class="col-md-5">Amount:</label>
               <div class="col-md-7">
-                <input type="text" [(ngModel)]="orderAmount" class="form-control input-sm" placeholder="20" />
+                <input type="text" [(ngModel)]="orderAmount" class="form-control form-control-sm" placeholder="20" />
               </div>
             </div>
             <div class="row">
               <label class="col-md-5">Total:</label>
               <div class="col-md-7">
-                <input type="text" [(ngModel)]="orderTotal" class="form-control input-sm" placeholder="30" />
+                <input type="text" [(ngModel)]="orderTotal" class="form-control form-control-sm" placeholder="30" />
               </div>
             </div>
             <div class="row">
               <div class="col-md-12" style="margin-top:14px;">
                 <button class="btn pull-right"
                   [ngClass]="{
-                    'btn-default' : orderPrice >= prediction_average,
+                    'btn-light' : orderPrice >= prediction_average,
                     'btn-success' : orderPrice < prediction_average,
                     'disabled' : !orderPrice || !orderAmount
                   }"
@@ -89,9 +92,9 @@
                 >
                   <i class ="fa fa-plus"></i>&nbsp;Buy [{{trading_coin_code}}]
                 </button>
-                <button class="btn btn-default"
+                <button class="btn btn-light"
                 [ngClass]="{
-                  'btn-default' : orderPrice <= prediction_average,
+                  'btn-light' : orderPrice <= prediction_average,
                   'btn-success' : orderPrice > prediction_average,
                   'disabled' : !orderPrice || !orderAmount
                 }"
@@ -104,11 +107,11 @@
           </div>
         </div>
       </div>
-      <div class="panel panel-default">
-        <div class="panel-heading">
+      <div class="card">
+        <div class="card-header">
           Balance
         </div>
-        <div class="panel-body">
+        <div class="card-body">
           <ul *ngIf="balances">
             <li>Trading [{{trading_coin_code}}]: <a (click)="orderAmount=balances.trading" style="cursor:pointer;">{{balances.trading||0}}</a></li>
             <li>Source [{{source_coin_code}}]: <a (click)="orderTotal=balances.source" style="cursor:pointer;">{{balances.source||0}}</a></li>
@@ -117,9 +120,9 @@
       </div>
     </div>
     <div class="col-md-8">
-      <div class="panel panel-default">
-        <div class="panel-heading">Order Book Depth</div>
-        <div class="panel-body">
+      <div class="card">
+        <div class="card-header">Order Book Depth</div>
+        <div class="card-body">
           <div [ng2-highcharts]="orderBookDepth" class="graph"></div>
         </div>
       </div>
@@ -128,16 +131,16 @@
   
   <div class="row">
     <div class="col-md-4">
-      <div class="panel panel-default">
-        <div class="panel-heading">
+      <div class="card">
+        <div class="card-header">
           Bot Current Orders
         </div>
-        <div class="panel-body">
+        <div class="card-body">
           <div class="list-group">
             <a *ngFor="let order of open_orders"
                 href="javascript:void(0)" class="list-group-item"
               >
-              <button class="btn btn-default btn-xs pull-right" (click)="traderCancelOrder(order.orderNumber)"><i class ="fa fa-remove text-danger"></i>&nbsp;Cancel</button>
+              <button class="btn btn-outline-danger btn-sm pull-right" (click)="traderCancelOrder(order.orderNumber)"><i class ="fa fa-remove text-danger"></i>&nbsp;Cancel</button>
               <span>[<i class ="fa" [ngClass]="{
                 'fa-plus' : order.type == 'buy',
                 'fa-minus' : order.type == 'sell'
@@ -153,11 +156,11 @@
       </div>
     </div>
     <div class="col-md-8">
-      <div class="panel panel-default">
-        <div class="panel-heading">
+      <div class="card">
+        <div class="card-header">
           Trade History
         </div>
-        <div class="panel-body">
+        <div class="card-body">
           <table class="table table-striped">
             <tr>
               <th style="width:20px;"></th>
@@ -187,22 +190,24 @@
   
 </div>
 <div class="col-md-3">
-  <div class="panel panel-default">
-    <div class="panel-heading">
+  <div class="card">
+    <div class="card-header">
       Options <span *ngIf="selectedBot">[{{selectedBot.name}} ({{selectedBot.stock_id}}) {{selectedBot.currency_pair}}]</span>
     </div>
-    <div class="panel-body">
-      <div class="well well-sm">
-        <div class="row">
-          <label class="col-md-7">Name</label>
-          <div class="col-md-5">
-            <input type="text" class="form-control input-sm" [(ngModel)]="botName" />
+    <div class="card-body">
+      <div class="card border-info">
+        <div class="card-body">
+          <div class="row">
+            <label class="col-md-7">Name</label>
+            <div class="col-md-5">
+              <input type="text" class="form-control form-control-sm" [(ngModel)]="botName" />
+            </div>
           </div>
-        </div>
-        <div class="row">
-          <label class="col-md-7">API key</label>
-          <div class="col-md-5">
-            <input type="text" class="form-control input-sm" [ngModel]="botApiKey" disabled />
+          <div class="row">
+            <label class="col-md-7">API key</label>
+            <div class="col-md-5">
+              <input type="text" class="form-control form-control-sm" [ngModel]="botApiKey" disabled />
+            </div>
           </div>
         </div>
       </div>
@@ -217,5 +222,8 @@
         </div>
       </div>
     </div>
+  </div>
+</div>
+
   </div>
 </div>
