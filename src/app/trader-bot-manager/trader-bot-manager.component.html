@@ -17,7 +17,7 @@
                 (click)="selectBot(i)"
                 [ngClass]="{'active' : selectedBotIndex == i}"
                 href="javascript:void(0)" class="list-group-item"
-              >#{{bot.id}} {{bot.name}} [{{bot.currency_pair}}] <i (click)="removeBot(bot.uid); $event.stopPropagation()" class="fa fa-remove text-danger pull-right"></i></a>
+              >#{{bot.id}} {{bot.name}} [{{bot.currency_pair}}] <i (click)="removeBot(bot._id); $event.stopPropagation()" class="fa fa-remove text-danger pull-right"></i></a>
           </div>
         </div>
       </div>
@@ -84,7 +84,7 @@
               <div class="col-md-12" style="margin-top:14px;">
                 <button class="btn pull-right"
                   [ngClass]="{
-                    'btn-light' : orderPrice >= prediction_average,
+                    'btn-secondary' : orderPrice >= prediction_average,
                     'btn-success' : orderPrice < prediction_average,
                     'disabled' : !orderPrice || !orderAmount
                   }"
@@ -92,9 +92,9 @@
                 >
                   <i class ="fa fa-plus"></i>&nbsp;Buy [{{trading_coin_code}}]
                 </button>
-                <button class="btn btn-light"
+                <button class="btn btn-secondary"
                 [ngClass]="{
-                  'btn-light' : orderPrice <= prediction_average,
+                  'btn-secondary' : orderPrice <= prediction_average,
                   'btn-success' : orderPrice > prediction_average,
                   'disabled' : !orderPrice || !orderAmount
                 }"
@@ -194,9 +194,9 @@
     <div class="card-header">
       Options <span *ngIf="selectedBot">[{{selectedBot.name}} ({{selectedBot.stock_id}}) {{selectedBot.currency_pair}}]</span>
     </div>
-    <div class="card-body">
+    <div class="card-body" style="padding: 0.6rem;">
       <div class="card border-info">
-        <div class="card-body">
+        <div class="card-body" style="padding: 0.6rem;">
           <div class="row">
             <label class="col-md-7">Name</label>
             <div class="col-md-5">

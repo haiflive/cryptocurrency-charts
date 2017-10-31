@@ -1,4 +1,4 @@
-<h4>Chart and Depth options:</h4>
+<legend>Chart and Depth options:</legend>
 
 <div class="row">
   <label class="col-md-7">Prediction Time [ms]</label>
@@ -6,7 +6,7 @@
     <div class="input-group">
         <input [(ngModel)]="config.prediction_time" type="text" class="form-control form-control-sm" placeholder="3600000" />
       <div class="input-group-btn" dropdown>
-        <button dropdownToggle type="button" class="btn btn-light btn-sm dropdown-toggle">
+        <button dropdownToggle type="button" class="btn btn-secondary btn-sm dropdown-toggle">
           <span class="caret"></span>
         </button>
         <div *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu">
@@ -52,7 +52,7 @@
   </div>
 </div>
 
-<h4>Taderer Options:</h4>
+<legend>Taderer Options:</legend>
 <div class="row">
   <label class="col-md-7">Active</label>
   <div class="col-md-5">
@@ -71,7 +71,7 @@
     <div class="input-group">
       <input [(ngModel)]="config.reorder_time" type="text" class="form-control form-control-sm" placeholder="3600000" />
       <div class="input-group-btn" dropdown>
-        <button dropdownToggle type="button" class="btn btn-light btn-sm dropdown-toggle">
+        <button dropdownToggle type="button" class="btn btn-secondary btn-sm dropdown-toggle">
           <span class="caret"></span>
         </button>
         <div *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu">

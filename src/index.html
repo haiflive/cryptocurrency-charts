@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <title>ChartWeb</title>
-  <base href="/">
+  <base href="/cchartpanel">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
@@ -17,6 +17,39 @@
   <link rel="stylesheet" href="assets/css/prettify-angulario.css">
 </head>
 <body>
-  <app-root></app-root>
+  <div class="container">
+    <header class="header clearfix">
+      <nav>
+        <ul class="nav nav-pills float-right">
+          <li class="nav-item">
+            <a class="nav-link" href="/">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/pages/about">About</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/pages/contacts">Contact</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/users/logout">Logout</a>
+          </li>
+        </ul>
+      </nav>
+      <h3 class="text-muted">Cchart Trader Bot</h3>
+    </header>
+  </div>
+
+    <main role="main">
+      
+      <app-root></app-root>
+
+    </main>
+  
+  <div class="container">
+    <footer class="footer">
+      <p>&copy; haiflive 2017</p>
+    </footer>
+
+  </div> <!-- /container -->
 </body>
 </html>

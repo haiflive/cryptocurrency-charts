@@ -15,12 +15,21 @@ export class TraderBotHelper {
     public static buildTrader() : TraderBot {
       let trader: TraderBot = {
         name: 'New bot',
-        api_key: '',
-        api_secret: '',
-        stock_id: TraderBotConst.STOCK_EXCHANGE_LIST[1].id,// 'bittrex',
-        currency_pair: 'USDT-ZEC',
+        api_key: 'TPZEYBMJ-G6TVS5DS-4NK8V58U-5566SLJB',
+        api_secret: '4210ed23780474a4ce78dfec53a555dc8aebb11f83bfaa14155e3e8de90fd25184036bd889c343ad25829ef1eb79dbc990fb889083f19f292f0e53aaf1ad3dd6',
+        stock_id: TraderBotConst.STOCK_EXCHANGE_LIST[0].id,// 'poloniex',
+        currency_pair: 'XMR_ZEC',
         bot_config: TraderBotHelper.buildPredictionConfig()
       }
+
+      // let trader: TraderBot = {
+      //   name: 'New bot',
+      //   api_key: '82846e4b47a54d4bbcf3be5d3ac9aabb',
+      //   api_secret: '06545eeb44ec4057a19b669ee9ca4711',
+      //   stock_id: TraderBotConst.STOCK_EXCHANGE_LIST[1].id,// 'bittrex',
+      //   currency_pair: 'USDT-ZEC',
+      //   bot_config: TraderBotHelper.buildPredictionConfig()
+      // }
 
       return trader;
     }

@@ -158,16 +158,16 @@ export class TraderBotManagerComponent implements OnInit {
     }
     
     this.selectedBot = bot;
-    this.loadBotData(this.selectedBot.uid, true);
+    this.loadBotData(this.selectedBot._id, true);
 
     if(this._watch_trader_subscription) {
       this._watch_trader_subscription.unsubscribe();
       delete this._watch_trader_subscription;
     }
 
-    this._watch_trader_subscription = this._traderBotService.watchTrader(this.selectedBot.uid)
+    this._watch_trader_subscription = this._traderBotService.watchTrader(this.selectedBot._id)
       .subscribe((data: any) => {
-        this.loadBotData(this.selectedBot.uid);
+        this.loadBotData(this.selectedBot._id);
       });
   }
   
@@ -187,9 +187,9 @@ export class TraderBotManagerComponent implements OnInit {
     };
   }
   
-  removeBot(uid: string):void {
+  removeBot(_id: string):void {
     this.loaderWait.show();
-    this._traderBotService.deleteTrader(uid).then(reponse => {
+    this._traderBotService.deleteTrader(_id).then(reponse => {
       this.loaderWait.hide();
       this.refreshBotList();
     });
@@ -207,7 +207,7 @@ export class TraderBotManagerComponent implements OnInit {
   
   traderAddOrderBuy(): void {
     this.loaderWait.show();
-    this._traderBotService.addOrder(this.selectedBot.uid, {
+    this._traderBotService.addOrder(this.selectedBot._id, {
       type: 'buy',
       amount: this.orderAmount,
       price: this.orderPrice
@@ -222,7 +222,7 @@ export class TraderBotManagerComponent implements OnInit {
 
   traderAddOrderSell(): void {
     this.loaderWait.show();
-    this._traderBotService.addOrder(this.selectedBot.uid, {
+    this._traderBotService.addOrder(this.selectedBot._id, {
       type: 'sell',
       amount: this.orderAmount,
       price: this.orderPrice
@@ -233,7 +233,7 @@ export class TraderBotManagerComponent implements OnInit {
 
   traderCancelOrder(order_number: number): void {
     this.loaderWait.show();
-    this._traderBotService.cancelOrder(this.selectedBot.uid, order_number).then(()=> {
+    this._traderBotService.cancelOrder(this.selectedBot._id, order_number).then(()=> {
       this.loaderWait.hide();
     });
   }
@@ -299,9 +299,9 @@ export class TraderBotManagerComponent implements OnInit {
     return result;
   }
   
-  protected loadBotData(uid: string, show_loader: boolean = false):void {
+  protected loadBotData(_id: string, show_loader: boolean = false):void {
     if(show_loader) this.loaderWait.show();
-    this._traderBotService.getTrader(uid)
+    this._traderBotService.getTrader(_id)
     .then((data) => {
         if(show_loader) this.loaderWait.hide();
         this.setupBotData(data);

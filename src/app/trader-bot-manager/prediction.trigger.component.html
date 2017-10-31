@@ -12,7 +12,7 @@
       <div class="col-md-5">
         <div class="input-group">
           <div class="input-group-btn" dropdown>
-            <button dropdownToggle type="button" class="btn btn-light btn-sm dropdown-toggle">
+            <button dropdownToggle type="button" class="btn btn-secondary btn-sm dropdown-toggle">
               <span *ngIf="config.index_comparsion===indexComparsion.less_than_value">&lt;</span>
               <span *ngIf="config.index_comparsion===indexComparsion.greater_than_value">&gt;</span>
             </button>
@@ -44,7 +44,7 @@
         <div class="col-md-5">
           <div class="input-group">
             <div class="input-group-btn" dropdown>
-              <button dropdownToggle type="button" class="btn btn-light btn-sm dropdown-toggle">
+              <button dropdownToggle type="button" class="btn btn-secondary btn-sm dropdown-toggle">
                 <span *ngIf="action_select.action.value_operator===actionValueOperator.do_plus">+</span>
                 <span *ngIf="action_select.action.value_operator===actionValueOperator.do_minus">-</span>
                 <span *ngIf="action_select.action.value_operator===actionValueOperator.do_equals">=</span>
