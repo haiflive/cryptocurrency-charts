@@ -4,12 +4,15 @@ import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/modal-options.class';
 
 import { TraderBotService } from '../services/trader-bot.service';
-import { TraderBot, PredictionConfig, TriggerIndexItem, TraderBotConst } from '../services/types/trader.types';
+import { TraderBot, PredictionConfig, TriggerIndexItem, TraderBotConst,
+         OrderItem, TraderBotStatistic } from '../services/types/trader.types';
 import { LoaderWaitService } from '../services/loader-wait.service';
 import { PoloniexApiService } from '../services/poloniex-api.service';
 import { CreateTraderModalComponent } from './create-trader.modal.component';
 import { TraderBotHelper } from './trader.bot.helper';
 import { Observable, Subscription } from 'rxjs';
+import { OpenOrder } from '../services/types/trader.types';
+import { OrderSortArgs, OrderSortDirection } from './common/orders.sort.pipe';
 
 import * as _ from "lodash";
 
@@ -42,6 +45,10 @@ export class TraderBotManagerComponent implements OnInit {
   trading_coin_code: string;
   trade_history:any[];
   open_orders:any[];
+  open_orders_filter: OpenOrder;
+  open_orders_sort: OrderSortArgs;
+  orders_total_buy: number;
+  orders_total_sell: number;
   
   traderBotList : TraderBot[];
   selectedBot : TraderBot;
@@ -53,6 +60,7 @@ export class TraderBotManagerComponent implements OnInit {
   change24h:number = 0;
   change7d:number = 0;
   change_pretioction_time:number = 0;
+  statistic: TraderBotStatistic;
   /**
    *  @date_start - chart timestamp start
    *  @date_end - chart timestamp end
@@ -70,6 +78,25 @@ export class TraderBotManagerComponent implements OnInit {
   private _order_total: number;
   
   ngOnInit() {
+    this.open_orders_filter = {
+      orderNumber: '',
+      type: '',
+      rate: 0,
+      startingAmount: 0,
+      amount: 0,
+      total: 0,
+      date: 0,
+      margin:0,
+    };
+
+    this.open_orders_sort = {
+      filed_name: '',
+      direction: OrderSortDirection.ASC
+    };
+
+    this.orders_total_buy = 0;
+    this.orders_total_sell = 0;
+
     this.selectedBot = TraderBotHelper.buildTrader();
 
     this.selectedBotIndex = -1;
@@ -200,9 +227,16 @@ export class TraderBotManagerComponent implements OnInit {
     this.selectedBot.bot_config.triggers;
     let action = this.selectedBot.bot_config.triggers[0].actions[0];
     
-    this._traderBotService.updateTrader(this.selectedBot).then(data => {
-      this.loaderWait.hide();
-    });
+    this._traderBotService.updateTrader(this.selectedBot).then(
+      (data) => {
+        this.loaderWait.hide();
+        // refresh bot charts:
+        this.selectBot(this.selectedBotIndex);
+      },
+      (error) => {
+        alert(JSON.stringify(error));
+      }
+    );
   };
   
   traderAddOrderBuy(): void {
@@ -331,6 +365,7 @@ export class TraderBotManagerComponent implements OnInit {
       this.change_pretioction_time = bot.change_pretioction_time;
       this.prediction_average = bot.prediction_average;
       this.index_list = bot.index_list;
+      this.statistic = bot.statistic;
       
       let trade_list = _.map(this.trade_history, (p:any) => {
         return {
@@ -339,6 +374,14 @@ export class TraderBotManagerComponent implements OnInit {
           text: `total: ${p.total}, (rate: ${p.rate}, amount: ${p.amount}`
         };
       });
+
+      // calculate opent order total
+      let order_groups = _.groupBy(this.open_orders, (p: OpenOrder) => p.type);
+      let buy_orders = _.orderBy(order_groups.buy, (p: OpenOrder) => -p.rate); // "+"
+      let sell_orders = _.orderBy(order_groups.sell, (p: OpenOrder) => +p.rate); // "-"
+
+      this.orders_total_buy  = _.sumBy(buy_orders, (p: OpenOrder) => +p.total); // source
+      this.orders_total_sell = _.sumBy(sell_orders, (p: OpenOrder) => +p.amount); // trading
       
       // --------------- configure charts ------------
       let order_list_charts = _.map(this.open_orders, (p:any) => {
@@ -506,13 +549,16 @@ export class TraderBotManagerComponent implements OnInit {
             data: trade_list,
             onSeries: 'dataseries',
             shape: 'circlepin',
-            width: 16
+            width: 16,
+            color: '#d4edda',
+            fillColor: '#c3e6cb'
         }, {
             type: 'flags',
             data: order_list_charts,
             onSeries: 'dataseries',
             shape: 'circlepin',
-            width: 20
+            width: 20,
+            color: '#dc3545'
         }]
       };
       
@@ -651,26 +697,22 @@ export class TraderBotManagerComponent implements OnInit {
       });
       
       series_depth.push({
-          name: 'Extremums',
-          type: 'flags',
-          data: depth_extremums,
-          onSeries: 'dataseries',
-          shape: 'circlepin',
-          width: 14
-      },{
         name: 'Predictions',
         type: 'flags',
         data: depth_prediction_steps_markers,
         onSeries: 'dataseries',
         shape: 'circlepin',
-        width: 16
+        width: 16,
+        color: '#ffeeba',
+        fillColor: '#fff3cd'
       }, {
         name: 'Orders',
         type: 'flags',
         data: order_list_depth,
         onSeries: 'dataseries',
         shape: 'circlepin',
-        width: 16
+        width: 16,
+        color: '#dc3545'
       }, {
         name: 'min',
         type: 'flags',
@@ -679,7 +721,15 @@ export class TraderBotManagerComponent implements OnInit {
         shape: 'circlepin',
         width: 16,
         visible: false
-      });
+      }, {
+        name: 'Extremums',
+        type: 'flags',
+        data: depth_extremums,
+        onSeries: 'dataseries',
+        shape: 'circlepin',
+        width: 14,
+        color: '#b8daff'
+    });
 
       let me = this;
 

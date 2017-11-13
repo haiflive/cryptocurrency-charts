@@ -21,6 +21,7 @@
           </div>
         </div>
       </div>
+      <div class="row"><div class="col">&nbsp;</div></div>
       <div class="card">
         <div class="card-header">
           Indexes
@@ -28,7 +29,7 @@
         <div class="card-body">
           <div class="list-group">
             <ul>
-              <li *ngFor="let index_item of index_list;">{{getTrigetIndexName(index_item.uid)}}: {{index_item.value}}</li>
+              <li *ngFor="let index_item of index_list;">{{getTrigetIndexName(index_item.uid)}}: {{index_item.value.toFixed(2)}}</li>
             </ul>
           </div>
         </div>
@@ -51,6 +52,7 @@
           <div [ng2-highstocks]="chartStock" class="graph"></div>
         </div>
       </div>
+      <div class="row"><div class="col">&nbsp;</div></div>
     </div>
   </div>
   
@@ -107,6 +109,7 @@
           </div>
         </div>
       </div>
+      <div class="row"><div class="col">&nbsp;</div></div>
       <div class="card">
         <div class="card-header">
           Balance
@@ -126,6 +129,7 @@
           <div [ng2-highcharts]="orderBookDepth" class="graph"></div>
         </div>
       </div>
+      <div class="row"><div class="col">&nbsp;</div></div>
     </div>
   </div>
   
@@ -133,17 +137,50 @@
     <div class="col-md-4">
       <div class="card">
         <div class="card-header">
-          Bot Current Orders
+          <div class="row">
+           <div class="col">
+            Current Orders
+            <div class="dropdown pull-right" style="margin-left:7px;" dropdown>
+              <button dropdownToggle type="button" class="btn btn-light btn-sm dropdown-toggle">
+                <i class="fa fa-filter" aria-hidden="true"></i>
+              </button>
+              <div *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu">
+                <a [ngClass]="{'active' : open_orders_filter.type == 'buy'}" class="dropdown-item" href="javascript:void(0)" (click)="open_orders_filter.type = 'buy'">Buy</a>
+                <a [ngClass]="{'active' : open_orders_filter.type == 'sell'}" class="dropdown-item" href="javascript:void(0)" (click)="open_orders_filter.type = 'sell'">Sell</a>
+                <a [ngClass]="{'active' : open_orders_filter.type == ''}" class="dropdown-item" href="javascript:void(0)" (click)="open_orders_filter.type = ''">All</a>
+              </div>
+            </div>
+            
+            <div class="dropdown pull-right" dropdown>
+              <button dropdownToggle type="button" class="btn btn-light btn-sm dropdown-toggle">
+                <i class="fa fa-sort-amount-asc" aria-hidden="true"></i>
+              </button>
+              <div *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu">              
+                <a [ngClass]="{'active' : open_orders_sort.filed_name == 'total' && open_orders_sort.direction == 20}" class="dropdown-item" href="javascript:void(0)" (click)="open_orders_sort.filed_name = 'total'; open_orders_sort.direction = 20">Total&nbsp;<i class="fa fa-sort-numeric-desc" aria-hidden="true"></i></a>
+                <a [ngClass]="{'active' : open_orders_sort.filed_name == 'total' && open_orders_sort.direction == 10}" class="dropdown-item" href="javascript:void(0)" (click)="open_orders_sort.filed_name = 'total'; open_orders_sort.direction = 10">Total&nbsp;<i class="fa fa-sort-numeric-asc" aria-hidden="true"></i></a>
+                <a [ngClass]="{'active' : open_orders_sort.filed_name == 'date' && open_orders_sort.direction == 20}" class="dropdown-item" href="javascript:void(0)" (click)="open_orders_sort.filed_name = 'date'; open_orders_sort.direction = 20">Date&nbsp;<i class="fa fa-sort-numeric-desc" aria-hidden="true"></i></a>
+                <a [ngClass]="{'active' : open_orders_sort.filed_name == 'date' && open_orders_sort.direction == 10}" class="dropdown-item" href="javascript:void(0)" (click)="open_orders_sort.filed_name = 'date'; open_orders_sort.direction = 10">Date&nbsp;<i class="fa fa-sort-numeric-asc" aria-hidden="true"></i></a>
+                <a [ngClass]="{'active' : open_orders_sort.filed_name == ''}" class="dropdown-item" href="javascript:void(0)" (click)="open_orders_sort.filed_name = ''">Default</a>
+              </div>
+            </div>
+           </div>
+          </div>
+          <div class="row">
+            <div class="col">
+            <span class="text-success">{{ orders_total_buy.toFixed(4) }}</span> {{source_coin_code}}, 
+            <span class="text-success">{{ orders_total_sell.toFixed(4) }}</span> {{trading_coin_code}}
+            </div>
+          </div>
         </div>
         <div class="card-body">
           <div class="list-group">
-            <a *ngFor="let order of open_orders"
-                href="javascript:void(0)" class="list-group-item"
+            <a *ngFor="let order of open_orders | ordersFilter: open_orders_filter | ordersSort: open_orders_sort"
+                href="javascript:void(0)" class="list-group-item list-group-item-action flex-column align-items-start"
               >
               <button class="btn btn-outline-danger btn-sm pull-right" (click)="traderCancelOrder(order.orderNumber)"><i class ="fa fa-remove text-danger"></i>&nbsp;Cancel</button>
               <span>[<i class ="fa" [ngClass]="{
-                'fa-plus' : order.type == 'buy',
-                'fa-minus' : order.type == 'sell'
+                'fa-plus text-success' : order.type == 'buy',
+                'fa-minus text-danger' : order.type == 'sell'
               }"></i>&nbsp;{{order.type}}]&nbsp;</span>
               #{{order.orderNumber}}<br>
               Rate:&nbsp;  {{order.rate}}<br>
@@ -159,6 +196,24 @@
       <div class="card">
         <div class="card-header">
           Trade History
+          <div *ngIf="statistic" class="dropdown pull-right" dropdown>
+            <button dropdownToggle type="button" class="btn btn-light btn-sm dropdown-toggle">
+              Profit: <span tooltip="+{{+statistic.profit[0].profit.toFixed(6)}} {{+statistic.profit[0].damages.toFixed(6)}}" class="text-success">{{(statistic.profit[0].profit - statistic.profit[0].damages).toFixed(6)}}</span> {{source_coin_code}}
+            </button>
+            <div *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu">
+              <a *ngFor="let item of statistic.profit;" tooltip="+{{+item.profit.toFixed(6)}} {{+item.damages.toFixed(6)}}" class="dropdown-item">{{ item.period == 0 ? 'Total' : (item.period /(24*60*60) ).toFixed(0) + 'd' }}: {{(item.profit - item.damages).toFixed(6)}} {{source_coin_code}}</a>
+            </div>
+          </div>
+          
+          <div *ngIf="statistic" class="dropdown pull-right" dropdown>
+            <button dropdownToggle type="button" class="btn btn-light btn-sm dropdown-toggle text-warning">
+              Volume: {{statistic.trading_volume[0].volume.toFixed(2)}} {{source_coin_code}}
+            </button>
+            <div *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu">
+              <a *ngFor="let item of statistic.trading_volume;" class="dropdown-item">{{item.period == 0 ? 'Total' : (item.period /(24*60*60) ).toFixed(0) + 'd' }}: {{item.volume.toFixed(2)}} {{source_coin_code}}</a>
+            </div>
+          </div>
+          
         </div>
         <div class="card-body">
           <table class="table table-striped">

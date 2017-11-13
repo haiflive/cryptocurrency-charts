@@ -4,7 +4,7 @@
   <label class="col-md-7">Prediction Time [ms]</label>
   <div class="col-md-5">
     <div class="input-group">
-        <input [(ngModel)]="config.prediction_time" type="text" class="form-control form-control-sm" placeholder="3600000" />
+        <input [(ngModel)]="config.prediction_time" type="number" class="form-control form-control-sm" placeholder="3600000" />
       <div class="input-group-btn" dropdown>
         <button dropdownToggle type="button" class="btn btn-secondary btn-sm dropdown-toggle">
           <span class="caret"></span>
@@ -20,35 +20,35 @@
 <div class="row">
   <label class="col-md-7">Visible Orders</label>
   <div class="col-md-5">
-    <input [(ngModel)]="config.order_book_depth" type="text" class="form-control form-control-sm" placeholder="50" />
+    <input [(ngModel)]="config.order_book_depth" type="number" class="form-control form-control-sm" placeholder="50" required />
   </div>
 </div>
 
 <div class="row">
   <label class="col-md-7">Smoth Up [%]</label>
   <div class="col-md-5">
-    <input [(ngModel)]="config.extremum_smoth_pesentage_up" type="text" class="form-control form-control-sm" placeholder="50" />
+    <input [(ngModel)]="config.extremum_smoth_pesentage_up" type="number" class="form-control form-control-sm" placeholder="50" />
   </div>
 </div>
 
 <div class="row">
   <label class="col-md-7">Smoth Down [%]</label>
   <div class="col-md-5">
-    <input [(ngModel)]="config.extremum_smoth_pesentage_down" type="text" class="form-control form-control-sm" placeholder="50" />
+    <input [(ngModel)]="config.extremum_smoth_pesentage_down" type="number" class="form-control form-control-sm" placeholder="50" />
   </div>
 </div>
 
 <div class="row">
   <label class="col-md-7">Volume Filter Asks [%]</label>
   <div class="col-md-5">
-    <input [(ngModel)]="config.depth_pesentage_volume_filter_asks" type="text" class="form-control form-control-sm" placeholder="50" />
+    <input [(ngModel)]="config.depth_pesentage_volume_filter_asks" type="number" class="form-control form-control-sm" placeholder="50" />
   </div>
 </div>
 
 <div class="row">
   <label class="col-md-7">Volume Filter Bids [%]</label>
   <div class="col-md-5">
-    <input [(ngModel)]="config.depth_pesentage_volume_filter_bids" type="text" class="form-control form-control-sm" placeholder="50" />
+    <input [(ngModel)]="config.depth_pesentage_volume_filter_bids" type="number" class="form-control form-control-sm" placeholder="50" />
   </div>
 </div>
 
@@ -69,7 +69,7 @@
   <label class="col-md-7">Reorder Time [ms]</label>
   <div class="col-md-5">
     <div class="input-group">
-      <input [(ngModel)]="config.reorder_time" type="text" class="form-control form-control-sm" placeholder="3600000" />
+      <input [(ngModel)]="config.reorder_time" type="number" class="form-control form-control-sm" placeholder="3600000" />
       <div class="input-group-btn" dropdown>
         <button dropdownToggle type="button" class="btn btn-secondary btn-sm dropdown-toggle">
           <span class="caret"></span>
@@ -85,49 +85,49 @@
 <div class="row">
   <label class="col-md-7">Supply Source [%]</label>
   <div class="col-md-5">
-    <input [(ngModel)]="config.percentage_supply_source" type="text" class="form-control form-control-sm" placeholder="30" />
+    <input [(ngModel)]="config.percentage_supply_source" type="number" class="form-control form-control-sm" placeholder="30" />
   </div>
 </div>
 
 <div class="row">
   <label class="col-md-7">Supply Trading [%]</label>
   <div class="col-md-5">
-    <input [(ngModel)]="config.percentage_supply_trading" type="text" class="form-control form-control-sm" placeholder="30" />
+    <input [(ngModel)]="config.percentage_supply_trading" type="number" class="form-control form-control-sm" placeholder="30" />
   </div>
 </div>
 
 <div class="row">
   <label class="col-md-7">Equilibration</label>
   <div class="col-md-5">
-    <input [(ngModel)]="config.balance" type="text" class="form-control form-control-sm" placeholder="50" />
+    <input [(ngModel)]="config.balance" type="number" class="form-control form-control-sm" placeholder="50" />
   </div>
 </div>
 
 <div class="row">
   <label class="col-md-7">Steps</label>
   <div class="col-md-5">
-    <input [(ngModel)]="config.steps" type="text" class="form-control form-control-sm" placeholder="50" />
+    <input [(ngModel)]="config.steps" type="number" class="form-control form-control-sm" placeholder="50" />
   </div>
 </div>
 
 <div class="row">
   <label class="col-md-7">Step price multiplier buy</label>
   <div class="col-md-5">
-    <input [(ngModel)]="config.steps_price_multiplier_buy" type="text" class="form-control form-control-sm" placeholder="0.8" />
+    <input [(ngModel)]="config.steps_price_multiplier_buy" type="number" class="form-control form-control-sm" placeholder="0.8" />
   </div>
 </div>
 
 <div class="row">
   <label class="col-md-7">Step price multiplier sell</label>
   <div class="col-md-5">
-    <input [(ngModel)]="config.steps_price_multiplier_sell" type="text" class="form-control form-control-sm" placeholder="0.8" />
+    <input [(ngModel)]="config.steps_price_multiplier_sell" type="number" class="form-control form-control-sm" placeholder="0.8" />
   </div>
 </div>
 
 <div class="row">
   <label class="col-md-7">Step amount multiplier buy</label>
   <div class="col-md-5">
-    <input [(ngModel)]="config.steps_amount_multiplier_buy" type="text" class="form-control form-control-sm" placeholder="1.2" />
+    <input [(ngModel)]="config.steps_amount_multiplier_buy" type="number" class="form-control form-control-sm" placeholder="1.2" />
   </div>
 </div>
 
@@ -135,34 +135,34 @@
 <div class="row">
   <label class="col-md-7">Step amount multiplier sell</label>
   <div class="col-md-5">
-    <input [(ngModel)]="config.steps_amount_multiplier_sell" type="text" class="form-control form-control-sm" placeholder="1.2" />
+    <input [(ngModel)]="config.steps_amount_multiplier_sell" type="number" class="form-control form-control-sm" placeholder="1.2" />
   </div>
 </div>
 
 <div class="row">
   <label class="col-md-7">Buy Mark<u>down</u> [%]</label>
   <div class="col-md-5">
-    <input [(ngModel)]="config.percentage_buy" type="text" class="form-control form-control-sm" placeholder="1.5"/>
+    <input [(ngModel)]="config.percentage_buy" type="number" class="form-control form-control-sm" placeholder="1.5"/>
   </div>
 </div>
 
 <div class="row">
   <label class="col-md-7">Sell Mark<u>up</u> [%]</label>
   <div class="col-md-5">
-    <input [(ngModel)]="config.percentage_sell" type="text" class="form-control form-control-sm" placeholder="2.5" />
+    <input [(ngModel)]="config.percentage_sell" type="number" class="form-control form-control-sm" placeholder="2.5" />
   </div>
 </div>
 
 <div class="row">
   <label class="col-md-7">Const Sell Mark<u>up</u> [%]</label>
   <div class="col-md-5">
-    <input [(ngModel)]="config.percentage_buy_statical" type="text" class="form-control form-control-sm" placeholder="0.5" />
+    <input [(ngModel)]="config.percentage_buy_statical" type="number" class="form-control form-control-sm" placeholder="0.5" />
   </div>
 </div>
 <div class="row">
   <label class="col-md-7">Const Buy Mark<u>down</u> [%]</label>
   <div class="col-md-5">
-    <input [(ngModel)]="config.percentage_sell_statical" type="text" class="form-control form-control-sm" placeholder="0.5"/>
+    <input [(ngModel)]="config.percentage_sell_statical" type="number" class="form-control form-control-sm" placeholder="0.5"/>
   </div>
 </div>
 

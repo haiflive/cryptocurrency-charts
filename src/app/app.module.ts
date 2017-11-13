@@ -24,6 +24,9 @@ import { TraderBotManagerComponent } from './trader-bot-manager/trader-bot-manag
 import { CreateTraderModalComponent } from './trader-bot-manager/create-trader.modal.component';
 import { PredictionConfigComponent } from './trader-bot-manager/prediction.config.component';
 import { PredictionTriggerComponent } from './trader-bot-manager/prediction.trigger.component';
+// common:
+import { OrdersFilterPipe } from './trader-bot-manager/common/orders.filter.pipe';
+import { OrdersSortPipe } from './trader-bot-manager/common/orders.sort.pipe';
 
 @NgModule({
   declarations: [
@@ -36,6 +39,8 @@ import { PredictionTriggerComponent } from './trader-bot-manager/prediction.trig
     CreateTraderModalComponent,
     PredictionConfigComponent,
     PredictionTriggerComponent,
+    OrdersFilterPipe,
+    OrdersSortPipe,
   ],
   entryComponents: [CreateTraderModalComponent, PredictionConfigComponent, PredictionTriggerComponent],
   imports: [

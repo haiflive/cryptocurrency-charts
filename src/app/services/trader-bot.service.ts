@@ -10,25 +10,32 @@ import * as _ from "lodash";
 
 @Injectable()
 export class TraderBotService {
+  private _csrf_token;
+
   constructor(private http: Http) { }
   
   getAllTraders(): Promise<any> {
     return this.http.get(BASE_URL)
             .toPromise()
-            .then(response => response.json())
+            .then(response => {
+              this._csrf_token = response.headers.get('csrf-token');
+              return response.json();
+            })
             .catch(this.handleError);
   }
   
   getTrader(uid: string): Promise<any> {
     return this.http.get(BASE_URL + '/' + uid)
             .toPromise()
-            .then(response => response.json())
+            .then(response => {
+              this._csrf_token = response.headers.get('csrf-token');
+              return response.json();
+            })
             .catch(this.handleError);
   }
   
   addTrader(trader:TraderBot): Promise<any> {
-    let headers = new Headers({ 'Content-Type': 'application/json' });
-    let options = new RequestOptions({ headers: headers });
+    let options = new RequestOptions({ headers: this.buildHeaders() });
     
     return this.http.post(BASE_URL, trader, options)
           .toPromise()
@@ -37,9 +44,7 @@ export class TraderBotService {
   }
 
   updateTrader(trader:TraderBot): Promise<any> {
-    let headers = new Headers({ 'Content-Type': 'application/json' });
-    let options = new RequestOptions({ headers: headers });
-    
+    let options = new RequestOptions({ headers: this.buildHeaders() });
     
     return  this.http.put(BASE_URL, trader, options)
             .toPromise()
@@ -48,15 +53,16 @@ export class TraderBotService {
   }
   
   deleteTrader(uid:string): Promise<any> {
-    return this.http.delete(BASE_URL + `/` + uid)
+    let options = new RequestOptions({ headers: this.buildHeaders() });
+
+    return this.http.delete(BASE_URL + `/` + uid, options)
           .toPromise()
           .then(response => response.json())
           .catch(this.handleError);
   }
 
   addOrder(uid: string, order: {type: string, amount: number, price: number}) : Promise<any> {
-    let headers = new Headers({ 'Content-Type': 'application/json' });
-    let options = new RequestOptions({ headers: headers });
+    let options = new RequestOptions({ headers: this.buildHeaders() });
     
     return this.http.post(BASE_URL + `/${uid}/add_order`, order, options)
           .toPromise()
@@ -65,13 +71,21 @@ export class TraderBotService {
   }
 
   cancelOrder(uid: string, order_number: number) : Promise<any> {
-    let headers = new Headers({ 'Content-Type': 'application/json' });
-    let options = new RequestOptions({ headers: headers });
+    let options = new RequestOptions({ headers: this.buildHeaders() });
     
     return this.http.post(BASE_URL + `/${uid}/cancel_order/${order_number}`, {}, options)
           .toPromise()
           .then(response => response.json())
           .catch(this.handleError);
+  }
+
+  protected buildHeaders() {
+    let headers = new Headers({
+      'Content-Type': 'application/json',
+      'csrf-token': this._csrf_token
+    });
+
+    return headers;
   }
 
   // -- socket
@@ -155,6 +169,11 @@ export class TraderBotService {
   // }
 
   private handleError(error: any): Promise<any> {
+    let responce = JSON.parse(error._body);
+    if(responce.success === false && responce.message) {
+      return Promise.reject(responce.message);
+    }
+    
     console.error('An error occurred', error);
     return Promise.reject(error.message || error);
   }
