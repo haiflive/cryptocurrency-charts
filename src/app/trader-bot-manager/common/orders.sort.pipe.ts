@@ -17,16 +17,18 @@ export interface OrderSortArgs {
   name: "ordersSort"
 })
 export class OrdersSortPipe {
-  transform(array: OpenOrder[], args: OrderSortArgs): OpenOrder[] {
+  transform(array: OpenOrder[], args: OrderSortArgs): any[] {
     if(_.isEmpty(args.filed_name))
       return array;
     
-    return _.sortBy(array, (p) => {
+    let result: any[] = _.sortBy(array, (p:OpenOrder) => {
       if(args.direction == OrderSortDirection.ASC) {
         return p[args.filed_name];
       }
 
       return -p[args.filed_name];
     });
+
+    return result;
   }
 }
