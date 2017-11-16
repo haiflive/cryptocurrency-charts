@@ -139,7 +139,18 @@
         <div class="card-header">
           <div class="row">
            <div class="col">
-            Current Orders
+            Current Orders [{{ open_orders ? open_orders.length: '0' }}]
+            <div class="dropdown pull-right" dropdown>
+              <button dropdownToggle type="button" class="btn btn-light btn-sm dropdown-toggle">
+                  <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+              </button>
+              <div *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu">              
+                <a class="dropdown-item" href="javascript:void(0)" (click)="cancelAllBuyOrders()"><i class="fa fa-times" aria-hidden="true"></i>&nbsp;Cancel All <u>Buy</u> Orders</a>
+                <a class="dropdown-item" href="javascript:void(0)" (click)="cancelAllSellOrders()"><i class="fa fa-times" aria-hidden="true"></i>&nbsp;Cancel All <u>Sell</u> Orders</a>
+                <a class="dropdown-item" href="javascript:void(0)" (click)="cancelAllOrders()"><i class="fa fa-times" aria-hidden="true"></i>&nbsp;Cancel All Orders</a>
+              </div>
+            </div>
+
             <div class="dropdown pull-right" style="margin-left:7px;" dropdown>
               <button dropdownToggle type="button" class="btn btn-light btn-sm dropdown-toggle">
                 <i class="fa fa-filter" aria-hidden="true"></i>
@@ -156,10 +167,10 @@
                 <i class="fa fa-sort-amount-asc" aria-hidden="true"></i>
               </button>
               <div *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu">              
-                <a [ngClass]="{'active' : open_orders_sort.filed_name == 'total' && open_orders_sort.direction == 20}" class="dropdown-item" href="javascript:void(0)" (click)="open_orders_sort.filed_name = 'total'; open_orders_sort.direction = 20">Total&nbsp;<i class="fa fa-sort-numeric-desc" aria-hidden="true"></i></a>
-                <a [ngClass]="{'active' : open_orders_sort.filed_name == 'total' && open_orders_sort.direction == 10}" class="dropdown-item" href="javascript:void(0)" (click)="open_orders_sort.filed_name = 'total'; open_orders_sort.direction = 10">Total&nbsp;<i class="fa fa-sort-numeric-asc" aria-hidden="true"></i></a>
-                <a [ngClass]="{'active' : open_orders_sort.filed_name == 'date' && open_orders_sort.direction == 20}" class="dropdown-item" href="javascript:void(0)" (click)="open_orders_sort.filed_name = 'date'; open_orders_sort.direction = 20">Date&nbsp;<i class="fa fa-sort-numeric-desc" aria-hidden="true"></i></a>
-                <a [ngClass]="{'active' : open_orders_sort.filed_name == 'date' && open_orders_sort.direction == 10}" class="dropdown-item" href="javascript:void(0)" (click)="open_orders_sort.filed_name = 'date'; open_orders_sort.direction = 10">Date&nbsp;<i class="fa fa-sort-numeric-asc" aria-hidden="true"></i></a>
+                <a [ngClass]="{'active' : open_orders_sort.filed_name == 'total' && open_orders_sort.direction == 20}" class="dropdown-item" href="javascript:void(0)" (click)="open_orders_sort.filed_name = 'total'; open_orders_sort.direction = 20"><i class="fa fa-sort-numeric-desc" aria-hidden="true"></i>&nbsp;Total</a>
+                <a [ngClass]="{'active' : open_orders_sort.filed_name == 'total' && open_orders_sort.direction == 10}" class="dropdown-item" href="javascript:void(0)" (click)="open_orders_sort.filed_name = 'total'; open_orders_sort.direction = 10"><i class="fa fa-sort-numeric-asc" aria-hidden="true"></i>&nbsp;Total</a>
+                <a [ngClass]="{'active' : open_orders_sort.filed_name == 'date' && open_orders_sort.direction == 20}" class="dropdown-item" href="javascript:void(0)" (click)="open_orders_sort.filed_name = 'date'; open_orders_sort.direction = 20"><i class="fa fa-sort-numeric-desc" aria-hidden="true"></i>&nbsp;Date</a>
+                <a [ngClass]="{'active' : open_orders_sort.filed_name == 'date' && open_orders_sort.direction == 10}" class="dropdown-item" href="javascript:void(0)" (click)="open_orders_sort.filed_name = 'date'; open_orders_sort.direction = 10"><i class="fa fa-sort-numeric-asc" aria-hidden="true"></i>&nbsp;Date</a>
                 <a [ngClass]="{'active' : open_orders_sort.filed_name == ''}" class="dropdown-item" href="javascript:void(0)" (click)="open_orders_sort.filed_name = ''">Default</a>
               </div>
             </div>
@@ -198,19 +209,19 @@
           Trade History
           <div *ngIf="statistic" class="dropdown pull-right" dropdown>
             <button dropdownToggle type="button" class="btn btn-light btn-sm dropdown-toggle">
-              Profit: <span tooltip="+{{+statistic.profit[0].profit.toFixed(6)}} {{+statistic.profit[0].damages.toFixed(6)}}" class="text-success">{{(statistic.profit[0].profit - statistic.profit[0].damages).toFixed(6)}}</span> {{source_coin_code}}
+              Profit: <span tooltip="+{{+statistic.profit[0].profit_source.toFixed(6)}} {{+statistic.profit[0].damages_source.toFixed(6)}}" class="text-success">{{(statistic.profit[0].profit_source - statistic.profit[0].damages_source).toFixed(6)}}</span> {{source_coin_code}}, <span tooltip="+{{+statistic.profit[0].profit_trading.toFixed(6)}} {{+statistic.profit[0].damages_trading.toFixed(6)}}" class="text-success">{{(statistic.profit[0].profit_trading - statistic.profit[0].damages_trading).toFixed(6)}}</span> {{trading_coin_code}}
             </button>
             <div *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu">
-              <a *ngFor="let item of statistic.profit;" tooltip="+{{+item.profit.toFixed(6)}} {{+item.damages.toFixed(6)}}" class="dropdown-item">{{ item.period == 0 ? 'Total' : (item.period /(24*60*60) ).toFixed(0) + 'd' }}: {{(item.profit - item.damages).toFixed(6)}} {{source_coin_code}}</a>
+              <a *ngFor="let item of statistic.profit;" tooltip="+{{+item.profit_source.toFixed(6)}} {{+item.damages_source.toFixed(6)}}" class="dropdown-item">{{ item.period == 0 ? 'Total' : (item.period /(24*60*60) ).toFixed(0) + 'd' }}: {{(item.profit_source - item.damages_source).toFixed(6)}} {{source_coin_code}}, {{(item.profit_trading - item.damages_trading).toFixed(6)}} {{trading_coin_code}}</a>
             </div>
           </div>
           
           <div *ngIf="statistic" class="dropdown pull-right" dropdown>
             <button dropdownToggle type="button" class="btn btn-light btn-sm dropdown-toggle text-warning">
-              Volume: {{statistic.trading_volume[0].volume.toFixed(2)}} {{source_coin_code}}
+              Volume: {{statistic.trading_volume[0].volume_source.toFixed(2)}} {{source_coin_code}}, {{statistic.trading_volume[0].volume_trading.toFixed(2)}} {{trading_coin_code}}
             </button>
             <div *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu">
-              <a *ngFor="let item of statistic.trading_volume;" class="dropdown-item">{{item.period == 0 ? 'Total' : (item.period /(24*60*60) ).toFixed(0) + 'd' }}: {{item.volume.toFixed(2)}} {{source_coin_code}}</a>
+              <a *ngFor="let item of statistic.trading_volume;" class="dropdown-item">{{item.period == 0 ? 'Total' : (item.period /(24*60*60) ).toFixed(0) + 'd' }}: {{item.volume_source.toFixed(2)}} {{source_coin_code}}, {{item.volume_trading.toFixed(2)}} {{trading_coin_code}}</a>
             </div>
           </div>
           
@@ -228,7 +239,7 @@
               <td><i class ="fa" [ngClass]="{
                 'fa-plus text-success' : trade.type == 'buy',
                 'fa-minus text-danger' : trade.type == 'sell'
-              }"></i></td>
+              }" tooltip="{{trade.type}}"></i></td>
               <td><span tooltip="Fee: {{(+trade.fee * +trade.amount).toFixed(8)}} ({{+trade.fee * 100}}%)" placement="bottom">{{trade.amount}}</span></td>
               <td>{{trade.rate}}</td>
               <td>{{trade.total}}</td>
@@ -247,20 +258,19 @@
 <div class="col-md-3">
   <div class="card">
     <div class="card-header">
-      Options <span *ngIf="selectedBot">[{{selectedBot.name}} ({{selectedBot.stock_id}}) {{selectedBot.currency_pair}}]</span>
+      Trader options <span class="pull-right">({{selectedBot.stock_id}})</span>
     </div>
     <div class="card-body" style="padding: 0.6rem;">
       <div class="card border-info">
         <div class="card-body" style="padding: 0.6rem;">
           <div class="row">
-            <label class="col-md-7">Name</label>
-            <div class="col-md-5">
-              <input type="text" class="form-control form-control-sm" [(ngModel)]="botName" />
+              <label class="col-md-5">Name</label>
+              <div class="col-md-7">
+              <input type="text" class="form-control form-control-sm" [(ngModel)]="botName" placeholder="Name" />
             </div>
           </div>
           <div class="row">
-            <label class="col-md-7">API key</label>
-            <div class="col-md-5">
+            <div class="col">
               <input type="text" class="form-control form-control-sm" [ngModel]="botApiKey" disabled />
             </div>
           </div>

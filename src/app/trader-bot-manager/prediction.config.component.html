@@ -60,7 +60,8 @@
       [(ngModel)]="config.is_active" btnCheckbox
       [ngClass]="{'btn-info' : config.is_active}"
       ngDefaultControl>
-      {{config.is_active ? 'Trading...' : 'Disabled'}}
+      <span *ngIf="config.is_active"><i class="fa fa-spinner" aria-hidden="true"></i>&nbsp;Trading...</span>
+      <span *ngIf="!config.is_active"><i class="fa fa-circle-o" aria-hidden="true"></i>&nbsp;Disabled</span>
     </button>
   </div>
 </div>

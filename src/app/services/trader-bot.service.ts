@@ -70,10 +70,19 @@ export class TraderBotService {
           .catch(this.handleError);
   }
 
-  cancelOrder(uid: string, order_number: number) : Promise<any> {
+  cancelOrder(uid: string, order_number: string) : Promise<any> {
     let options = new RequestOptions({ headers: this.buildHeaders() });
     
     return this.http.post(BASE_URL + `/${uid}/cancel_order/${order_number}`, {}, options)
+          .toPromise()
+          .then(response => response.json())
+          .catch(this.handleError);
+  }
+
+  cancelOrders(uid: string, order_numbers: string[]) : Promise<any> {
+    let options = new RequestOptions({ headers: this.buildHeaders() });
+    
+    return this.http.post(BASE_URL + `/${uid}/cancel_orders`, order_numbers, options)
           .toPromise()
           .then(response => response.json())
           .catch(this.handleError);

@@ -57,6 +57,9 @@ import { OrdersSortPipe } from './trader-bot-manager/common/orders.sort.pipe';
     RouterModule.forRoot([
       {
         path: '', // currency-list
+        component: TraderBotManagerComponent
+      }, {
+        path: 'overview',
         component: CurrencyListComponent
       }, {
         path: 'radar-chart-currency',
@@ -67,9 +70,6 @@ import { OrdersSortPipe } from './trader-bot-manager/common/orders.sort.pipe';
       }, {
         path: 'cyclic-exchange',
         component: CyclicExchangeComponent
-      }, {
-        path: 'trader-bot-manager',
-        component: TraderBotManagerComponent
       }
     ])
   ],

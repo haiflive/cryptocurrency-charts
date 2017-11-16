@@ -265,7 +265,7 @@ export class TraderBotManagerComponent implements OnInit {
     });
   }
 
-  traderCancelOrder(order_number: number): void {
+  traderCancelOrder(order_number: string): void {
     this.loaderWait.show();
     this._traderBotService.cancelOrder(this.selectedBot._id, order_number).then(()=> {
       this.loaderWait.hide();
@@ -286,6 +286,36 @@ export class TraderBotManagerComponent implements OnInit {
   timestampToUtcDate(timestamp) {
     let date = new Date(timestamp*1000);
     return date.toUTCString();
+  }
+
+  cancelAllBuyOrders(): void {
+    let buy_orders = _.filter(this.open_orders, (p: OpenOrder) => p.type=='buy')
+    let order_numbers: string[] = _.map(buy_orders, (p: OpenOrder) => p.orderNumber);
+
+    this.loaderWait.show();
+    this._traderBotService.cancelOrders(this.selectedBot._id, order_numbers).then(()=> {
+      this.loaderWait.hide();
+    });
+  }
+
+  cancelAllSellOrders(): void {
+    let sell_orders = _.filter(this.open_orders, (p: OpenOrder) => p.type=='sell')
+    let order_numbers: string[] = _.map(sell_orders, (p: OpenOrder) => p.orderNumber);
+
+    this.loaderWait.show();
+    this._traderBotService.cancelOrders(this.selectedBot._id, order_numbers).then(()=> {
+      this.loaderWait.hide();
+    });
+  }
+
+  cancelAllOrders(): void {
+    let order_numbers: string[] = _.map(this.open_orders, (p: OpenOrder) => p.orderNumber);
+    
+    this.loaderWait.show();
+    this._traderBotService.cancelOrders(this.selectedBot._id, order_numbers)
+      .then(()=> {
+        this.loaderWait.hide();
+      });
   }
 
   protected refreshBotList(selectJustCreated: boolean = false) {
@@ -345,7 +375,7 @@ export class TraderBotManagerComponent implements OnInit {
   }
 
   protected setupBotData(bot: any) {
-      let data = bot.charts;
+      let data = _.orderBy(bot.charts, ['0'], ['asc']);
       let dataDepth = bot.depth;
       
       if(!_.isEmpty(bot.errors)) {
@@ -375,6 +405,8 @@ export class TraderBotManagerComponent implements OnInit {
         };
       });
 
+      trade_list = _.orderBy(trade_list, ['x'], ['asc'])
+
       // calculate opent order total
       let order_groups = _.groupBy(this.open_orders, (p: OpenOrder) => p.type);
       let buy_orders = _.orderBy(order_groups.buy, (p: OpenOrder) => -p.rate); // "+"
@@ -391,7 +423,9 @@ export class TraderBotManagerComponent implements OnInit {
           text: `total: ${p.total}, (rate: ${p.rate}, amount: ${p.amount}`
         };
       });
-      
+
+      order_list_charts = _.orderBy(order_list_charts, ['x'], ['asc']);
+
       // split the data set into ohlc and volume
       var ohlc = [],
           volume = [],
@@ -696,6 +730,12 @@ export class TraderBotManagerComponent implements OnInit {
         };
       });
       
+      // order for best charts perfomance
+      depth_prediction_steps_markers = _.orderBy(depth_prediction_steps_markers, ['x'], ['asc'])
+      order_list_depth = _.orderBy(order_list_depth, ['x'], ['asc'])
+      // depth_prediction_markers = _.orderBy(depth_prediction_markers, ['x'], ['asc'])
+      depth_extremums = _.orderBy(depth_extremums, ['x'], ['asc'])
+
       series_depth.push({
         name: 'Predictions',
         type: 'flags',
