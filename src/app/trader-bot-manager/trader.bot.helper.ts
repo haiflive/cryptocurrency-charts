@@ -18,7 +18,7 @@ export class TraderBotHelper {
         api_key: '',
         api_secret: '',
         stock_id: TraderBotConst.STOCK_EXCHANGE_LIST[0].id,// 'poloniex',
-        currency_pair: 'XMR_ZEC',
+        currency_pair: 'USDT_ZEC',
         bot_config: TraderBotHelper.buildPredictionConfig()
       }
 
@@ -128,7 +128,7 @@ export class TraderBotHelper {
 
       let config: PredictionConfig = {
         is_active: false,
-        reorder_time: 14 * 24 * 60 * 60 * 1000, // default 14 days
+        reorder_time: 21 * 24 * 60 * 60 * 1000, // default 3 week
         prediction_time: 7 * 24 * 60 * 60 * 1000, // default 3 days
         percentage_supply_source: 90,
         percentage_supply_trading: 90,
@@ -137,7 +137,8 @@ export class TraderBotHelper {
         percentage_buy_statical: 0.5,
         percentage_sell_statical: 0.5,
         balance: 50,
-        steps: 12,
+        steps_buy: 12,
+        steps_sell: 12,
         steps_price_multiplier_buy: 1.05,
         steps_price_multiplier_sell: 1.05,
         steps_amount_multiplier_buy: 1.05,
