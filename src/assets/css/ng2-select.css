@@ -279,3 +279,18 @@ body > .ui-select-bootstrap.open {
 .open > .dropdown-menu {
   outline: 0;
 }
+
+
+.select-sm > .ui-select-container > input.ui-select-search.form-control {
+  padding: .25rem .5rem;
+  font-size: .875rem;
+  line-height: 1.5;
+  border-radius: .2rem;
+}
+
+.select-sm > .ui-select-container > div.ui-select-match > span.ui-select-toggle.form-control {
+  padding: .25rem .5rem;
+  font-size: .875rem;
+  line-height: 1.5;
+  border-radius: .2rem;
+}

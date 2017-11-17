@@ -6,7 +6,8 @@
       <ng-select
           [items]="index_select"
           [active]="value_index_select"
-          (selected)="selectTriggerIndex($event)">
+          (selected)="selectTriggerIndex($event)"
+          class="select-sm">
       </ng-select>
       </div>
       <div class="col-md-5">
@@ -38,7 +39,8 @@
           <ng-select
               [items]="action_select.list"
               [active]="action_select.value"
-              (selected)="selectTriggerAction($event, action_select)">
+              (selected)="selectTriggerAction($event, action_select)"
+              class="select-sm">
           </ng-select>
         </label>
         <div class="col-md-5">
