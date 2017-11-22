@@ -5,7 +5,7 @@ import { BsModalRef } from 'ngx-bootstrap/modal/modal-options.class';
 
 import { TraderBotService } from '../services/trader-bot.service';
 import { TraderBot, PredictionConfig, TriggerIndexItem, TraderBotConst,
-         OrderItem, TraderBotStatistic } from '../services/types/trader.types';
+         TraderBotStatistic } from '../services/types/trader.types';
 import { LoaderWaitService } from '../services/loader-wait.service';
 import { PoloniexApiService } from '../services/poloniex-api.service';
 import { CreateTraderModalComponent } from './create-trader.modal.component';
@@ -34,6 +34,7 @@ export class TraderBotManagerComponent implements OnInit {
   // ng2-highcharts
   chartStock;
   orderBookDepth;
+  orderAllocation;
   _chartGrouping = false;
   
   public data = {
@@ -320,16 +321,21 @@ export class TraderBotManagerComponent implements OnInit {
 
   protected refreshBotList(selectJustCreated: boolean = false) {
     this.loaderWait.show();
-    this._traderBotService.getAllTraders().then(data => {
-      this.loaderWait.hide();
-      this.traderBotList = data;
-      
-      let selectIndex = 0;
-      if(selectJustCreated)
-        selectIndex = this.traderBotList.length - 1;
+    this._traderBotService.getAllTraders().then(
+      data => {
+        this.loaderWait.hide();
+        this.traderBotList = data;
+        
+        let selectIndex = 0;
+        if(selectJustCreated)
+          selectIndex = this.traderBotList.length - 1;
 
-      this.selectBot(selectIndex);
-    });
+        this.selectBot(selectIndex);
+      },
+      (err: any) => {
+        alert(err);
+      }
+    );
   }
   
   protected setRangeChartData(date_start: number, date_end: number):void {
@@ -432,8 +438,9 @@ export class TraderBotManagerComponent implements OnInit {
           average = [],
           predict1 = [],
           predict2 = [],
+          predict2_high = [],
+          predict2_low = [],
           predict3 = [],
-          predict4 = [],
           dataLength = data.length,
           // set the allowed units for data grouping
           groupingUnits = [[
@@ -473,22 +480,27 @@ export class TraderBotManagerComponent implements OnInit {
           
           predict1.push([
             data[i][0], // the date
-            data[i][8], // predict1
+            data[i][8], // sma
           ]);
           
           predict2.push([
             data[i][0], // the date
-            data[i][9], // predict3
+            data[i][9][0], // sma
+          ]);
+          
+          predict2_high.push([
+            data[i][0], // the date
+            data[i][9][1], // sma_high
+          ]);
+          
+          predict2_low.push([
+            data[i][0], // the date
+            data[i][9][2], // sma_low
           ]);
           
           predict3.push([
             data[i][0], // the date
-            data[i][10], // predict4
-          ]);
-          
-          predict4.push([
-            data[i][0], // the date
-            data[i][11], // predict5
+            data[i][10], // predict3
           ]);
       }
       
@@ -500,6 +512,7 @@ export class TraderBotManagerComponent implements OnInit {
       this.chartStock = {
         rangeSelector: {
           buttons: [
+            { type: 'hour', count: 3, text: '3h' },
             { type: 'hour', count: 12, text: '12h' },
             { type: 'day', count: 1, text: '24h' },
             { type: 'day', count: 7, text: '7d' },
@@ -559,17 +572,20 @@ export class TraderBotManagerComponent implements OnInit {
             name: 'Qeighted Average',
             data: average,
         }, {
-            name: 'p_1',
+            name: 'EMA hour',
             data: predict1,
         }, {
-            name: 'p_2',
+            name: 'EMA day',
             data: predict2,
+        }, {
+          name: 'EMA day high',
+          data: predict2_high,
+        }, {
+          name: 'EMA day low',
+          data: predict2_low,
         }, {
             name: 'p_3',
             data: predict3,
-        }, {
-            name: 'p_4',
-            data: predict4,
         }, {
             type: 'column',
             name: 'Volume',
@@ -816,6 +832,73 @@ export class TraderBotManagerComponent implements OnInit {
         },
         series: series_depth
       };
+
+      // charts allocation
+      debugger;
+      let current_orders_allocation: number[] = this.locateXPoint(result.chart_labels, this.open_orders, 'rate', (item: OpenOrder) => {
+        return +item.amount * +item.rate
+      });
+
+      let safe_allocation_buy: any[] = _.map(result.chart_labels, (price: number) => {
+        if(this.prediction_average < price)
+          return 0;
+        
+        return +this.orders_total_buy / +price;
+      });
+      
+      let safe_allocation_sell: any[] = _.map(result.chart_labels, (price: number) => {
+        if(this.prediction_average > price)
+          return 0;
+
+        return +this.orders_total_sell * +price;
+      });
+
+      let series_allocation: any[] = [
+        { data: current_orders_allocation, name: 'Current orders', type: 'area' },
+        { data: safe_allocation_sell, name: 'Safe sell', type: 'area' },
+        { data: safe_allocation_buy, name: 'Safe buy', type: 'area' },
+      ];
+      
+      this.orderAllocation = {
+        chart: {
+          type: 'spline',
+          zoomType: 'x',
+        },
+        title: {
+          text: false
+        },
+        xAxis: {
+          categories: result.chart_labels,
+          labels: {
+            formatter: function () {
+              return this.value;
+            }
+          },
+          maxPadding: 0.05,
+          showLastLabel: true
+        },
+        yAxis: {
+          title: {text: false},
+          labels: {
+            formatter: function () {
+              return this.value;
+            }
+          },
+          lineWidth: 2
+        },
+        tooltip: {
+          headerFormat: '{point.key} [' + this.source_coin_code + "]<br>",
+          pointFormat: '{point.y}'
+        },
+        plotOptions: {
+          spline: {
+            marker: {
+              enable: false
+            }
+          }
+        },
+        series: series_allocation
+    };
   }
 
   private prepareDepthDataLinear(data:any) : any {
@@ -895,6 +978,33 @@ export class TraderBotManagerComponent implements OnInit {
       }
     }
     
+    return result;
+  }
+
+  /**
+   * find values position for lables, (just add zero)
+   * @param labels - x points
+   * @param _data - array or values
+   * @param prop_name - _data price variable name
+   * @param cb_item_operation 
+   *  @param data_item
+   */
+  private locateXPoint(labels: number[], data: any[], prop_name: string, cb_item_operation: Function) {
+    let result: any[] = [];
+
+    let last_j = 0;
+    for(let i = 0; i < labels.length; i++) {
+      for(let j = last_j; j < data.length; j++) {
+        if( +data[j][prop_name] < +labels[i]) {
+          let item = [ i, cb_item_operation.call(this, data[j]) ];
+          result.push(item);
+        } else {
+          last_j = j;
+          break;
+        }
+      }
+    }
+
     return result;
   }
 }
