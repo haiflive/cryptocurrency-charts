@@ -56,6 +56,7 @@ export class TraderBotManagerComponent implements OnInit {
   selectedBotIndex : number;
   prediction_average: number;
   index_list: TriggerIndexItem[];
+  min_amount: number;
   
   change1h:number = 0;
   change24h:number = 0;
@@ -402,6 +403,7 @@ export class TraderBotManagerComponent implements OnInit {
       this.prediction_average = bot.prediction_average;
       this.index_list = bot.index_list;
       this.statistic = bot.statistic;
+      this.min_amount = bot.min_amount;
       
       let trade_list = _.map(this.trade_history, (p:any) => {
         return {
@@ -415,8 +417,8 @@ export class TraderBotManagerComponent implements OnInit {
 
       // calculate opent order total
       let order_groups = _.groupBy(this.open_orders, (p: OpenOrder) => p.type);
-      let buy_orders = _.orderBy(order_groups.buy, (p: OpenOrder) => -p.rate); // "+"
-      let sell_orders = _.orderBy(order_groups.sell, (p: OpenOrder) => +p.rate); // "-"
+      let buy_orders: OpenOrder[] = _.orderBy(order_groups.buy, (p: OpenOrder) => -p.rate); // "+"
+      let sell_orders: OpenOrder[] = _.orderBy(order_groups.sell, (p: OpenOrder) => +p.rate); // "-"
 
       this.orders_total_buy  = _.sumBy(buy_orders, (p: OpenOrder) => +p.total); // source
       this.orders_total_sell = _.sumBy(sell_orders, (p: OpenOrder) => +p.amount); // trading
@@ -834,29 +836,59 @@ export class TraderBotManagerComponent implements OnInit {
       };
 
       // charts allocation
-      debugger;
       let current_orders_allocation: number[] = this.locateXPoint(result.chart_labels, this.open_orders, 'rate', (item: OpenOrder) => {
-        return +item.amount * +item.rate
+        return +item.amount
       });
 
-      let safe_allocation_buy: any[] = _.map(result.chart_labels, (price: number) => {
-        if(this.prediction_average < price)
-          return 0;
+      // buy_orders_allocation
+      let buy_orders_depth: any[] = [];
+      let sum_buy: number = 0;
+      for(let i = 0; i < buy_orders.length; i++) {
+        sum_buy += +buy_orders[i].amount;
+
+        buy_orders_depth.push({
+          rate: buy_orders[i].rate,
+          summ_amount: sum_buy
+        });
+      }
+
+      buy_orders_depth = _.reverse(buy_orders_depth);
+
+      let buy_orders_allocation = this.locateXPoint(result.chart_labels, buy_orders_depth, 'rate', (p: any) => p.summ_amount);
+
+      // sell_orders_allocation
+      let sell_orders_depth: any[] = [];
+      let sum_sell: number = 0;
+      for(i = 0; i < sell_orders.length ; i++) {
+        sum_sell += +sell_orders[i].amount;
+        sell_orders_depth.push({
+          rate: sell_orders[i].rate,
+          summ_amount: sum_sell
+        });
+      }
+
+      let sell_orders_allocation = this.locateXPoint(result.chart_labels, sell_orders_depth, 'rate', (p: any) => p.summ_amount);
+
+      // let safe_allocation_buy: any[] = _.map(result.chart_labels, (price: number) => {
+      //   if(this.prediction_average < price)
+      //     return 0;
         
-        return +this.orders_total_buy / +price;
-      });
+      //   return +this.orders_total_buy / +price;
+      // });
       
-      let safe_allocation_sell: any[] = _.map(result.chart_labels, (price: number) => {
-        if(this.prediction_average > price)
-          return 0;
+      // let safe_allocation_sell: any[] = _.map(result.chart_labels, (price: number) => {
+      //   if(this.prediction_average > price)
+      //     return 0;
 
-        return +this.orders_total_sell * +price;
-      });
+      //   return +this.orders_total_sell * +price;
+      // });
 
       let series_allocation: any[] = [
-        { data: current_orders_allocation, name: 'Current orders', type: 'area' },
-        { data: safe_allocation_sell, name: 'Safe sell', type: 'area' },
-        { data: safe_allocation_buy, name: 'Safe buy', type: 'area' },
+        { data: current_orders_allocation, name: 'Current orders', type: 'column' },
+        { data: buy_orders_allocation, name: 'Buy depth', type: 'area' },
+        { data: sell_orders_allocation, name: 'Sell depth', type: 'area' },
+      //   { data: safe_allocation_sell, name: 'Safe sell', type: 'area' },
+      //   { data: safe_allocation_buy, name: 'Safe buy', type: 'area' },
       ];
       
       this.orderAllocation = {
@@ -991,11 +1023,12 @@ export class TraderBotManagerComponent implements OnInit {
    */
   private locateXPoint(labels: number[], data: any[], prop_name: string, cb_item_operation: Function) {
     let result: any[] = [];
-
     let last_j = 0;
-    for(let i = 0; i < labels.length; i++) {
+    for(let i = 0; i < labels.length && result.length < data.length; i++) {
       for(let j = last_j; j < data.length; j++) {
-        if( +data[j][prop_name] < +labels[i]) {
+        let item_rate = data[j][prop_name];
+        let label_rate = +labels[i];
+        if( +item_rate <= +label_rate) {
           let item = [ i, cb_item_operation.call(this, data[j]) ];
           result.push(item);
         } else {
