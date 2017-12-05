@@ -882,11 +882,16 @@ export class TraderBotManagerComponent implements OnInit {
 
       //   return +this.orders_total_sell * +price;
       // });
+      let bot_allocation_buy = _.reverse(bot.allocation.buy);
+      let persentage_allocation_buy = this.locateXPoint(result.chart_labels, bot_allocation_buy, 'rate', (p: any) => p.amount);
+      let persentage_allocation_sell = this.locateXPoint(result.chart_labels, bot.allocation.sell, 'rate', (p: any) => p.amount);
 
       let series_allocation: any[] = [
         { data: current_orders_allocation, name: 'Current orders', type: 'column' },
         { data: buy_orders_allocation, name: 'Buy depth', type: 'area' },
         { data: sell_orders_allocation, name: 'Sell depth', type: 'area' },
+        { data: persentage_allocation_buy, name: '% buy allocation', type: 'area' },
+        { data: persentage_allocation_sell, name: '% sell allocation', type: 'area' },
       //   { data: safe_allocation_sell, name: 'Safe sell', type: 'area' },
       //   { data: safe_allocation_buy, name: 'Safe buy', type: 'area' },
       ];
