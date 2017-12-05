@@ -836,7 +836,8 @@ export class TraderBotManagerComponent implements OnInit {
       };
 
       // charts allocation
-      let current_orders_allocation: number[] = this.locateXPoint(result.chart_labels, this.open_orders, 'rate', (item: OpenOrder) => {
+      let open_orders_sorted: any[] = _.orderBy(this.open_orders, (p) => +p.rate);
+      let current_orders_allocation: number[] = this.locateXPoint(result.chart_labels, open_orders_sorted, 'rate', (item: OpenOrder) => {
         return +item.amount
       });
 
