@@ -45,6 +45,7 @@ export class TraderBotManagerComponent implements OnInit {
   source_coin_code: string;
   trading_coin_code: string;
   trade_history:any[];
+  order_fee: number;
   open_orders:any[];
   open_orders_filter: OpenOrder;
   open_orders_sort: OrderSortArgs;
@@ -404,6 +405,8 @@ export class TraderBotManagerComponent implements OnInit {
       this.index_list = bot.index_list;
       this.statistic = bot.statistic;
       this.min_amount = bot.min_amount;
+
+      this.order_fee = this.trade_history[0] ? this.trade_history[0].fee : 0;
       
       let trade_list = _.map(this.trade_history, (p:any) => {
         return {

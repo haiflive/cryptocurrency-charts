@@ -213,10 +213,10 @@
       Trade History
       <div *ngIf="statistic" class="dropdown pull-right" dropdown>
         <button dropdownToggle type="button" class="btn btn-light btn-sm dropdown-toggle">
-          Profit: <span tooltip="+{{+statistic.profit[0].profit_source.toFixed(6)}} {{+statistic.profit[0].damages_source.toFixed(6)}}" class="text-success">{{(statistic.profit[0].profit_source - statistic.profit[0].damages_source).toFixed(6)}}</span> {{source_coin_code}}, <span tooltip="+{{+statistic.profit[0].profit_trading.toFixed(6)}} {{+statistic.profit[0].damages_trading.toFixed(6)}}" class="text-success">{{(statistic.profit[0].profit_trading - statistic.profit[0].damages_trading).toFixed(6)}}</span> {{trading_coin_code}}
+          Profit: <span tooltip="+{{+statistic.profit[0].profit_source.toFixed(6)}} {{-statistic.profit[0].damages_source.toFixed(6)}} {{-(statistic.trading_volume[0].volume_source * order_fee)}}" class="text-success">{{(statistic.profit[0].profit_source - statistic.profit[0].damages_source - (statistic.trading_volume[0].volume_source.toFixed(6) * order_fee)).toFixed(6)}}</span> {{source_coin_code}}, <span tooltip="+{{+statistic.profit[0].profit_trading.toFixed(6)}} {{-statistic.profit[0].damages_trading.toFixed(6)}} {{-(statistic.trading_volume[0].volume_trading.toFixed(6) * order_fee)}}" class="text-success">{{(statistic.profit[0].profit_trading - statistic.profit[0].damages_trading - (statistic.trading_volume[0].volume_trading.toFixed(6) * order_fee)).toFixed(6)}}</span> {{trading_coin_code}}
         </button>
         <div *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu">
-          <a *ngFor="let item of statistic.profit;" tooltip="+{{+item.profit_source.toFixed(6)}} {{+item.damages_source.toFixed(6)}}" class="dropdown-item">{{ item.period == 0 ? 'Total' : (item.period /(24*60*60) ).toFixed(0) + 'd' }}: {{(item.profit_source - item.damages_source).toFixed(6)}} {{source_coin_code}}, {{(item.profit_trading - item.damages_trading).toFixed(6)}} {{trading_coin_code}}</a>
+          <a *ngFor="let item of statistic.profit; let i = index" tooltip="+{{+item.profit_source.toFixed(6)}} {{-item.damages_source.toFixed(6)}} {{-(statistic.trading_volume[i].volume_source.toFixed(6) * order_fee)}}" class="dropdown-item">{{ item.period == 0 ? 'Total' : (item.period /(24*60*60) ).toFixed(0) + 'd' }}: {{(item.profit_source - item.damages_source).toFixed(6)}} {{source_coin_code}}, {{(item.profit_trading - item.damages_trading).toFixed(6)}} {{trading_coin_code}}</a>
         </div>
       </div>
       
