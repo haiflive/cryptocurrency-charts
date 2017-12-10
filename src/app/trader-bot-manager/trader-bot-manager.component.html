@@ -90,7 +90,7 @@
   <div class="row"><div class="col">&nbsp;</div></div>
   <div class="card">
     <div class="card-header">
-      Balance
+      Balance [<span class="text-success">{{total_balance_source.toFixed(4)}}</span> {{source_coin_code}}]
     </div>
     <div class="card-body">
       <ul *ngIf="balances">
@@ -193,7 +193,8 @@
   <div class="row"><div class="col">&nbsp;</div></div>
   
   <div class="card">
-    <div class="card-header">Order Book Depth</div>
+    <div class="card-header">Order Book Depth
+      <div class="pull-right">Price: {{current_price.toFixed(4)}} {{source_coin_code}}</div></div>
     <div class="card-body">
       <div [ng2-highcharts]="orderBookDepth" class="graph"></div>
     </div>

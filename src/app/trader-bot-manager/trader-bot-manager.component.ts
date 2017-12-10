@@ -41,7 +41,8 @@ export class TraderBotManagerComponent implements OnInit {
     bots: []
   };
   
-  balances:any[];
+  balances: { source: number, trading: number };
+  total_balance_source: number;
   source_coin_code: string;
   trading_coin_code: string;
   trade_history:any[];
@@ -51,6 +52,7 @@ export class TraderBotManagerComponent implements OnInit {
   open_orders_sort: OrderSortArgs;
   orders_total_buy: number;
   orders_total_sell: number;
+  current_price: number; // avg bid&ask
   
   traderBotList : TraderBot[];
   selectedBot : TraderBot;
@@ -99,6 +101,8 @@ export class TraderBotManagerComponent implements OnInit {
 
     this.orders_total_buy = 0;
     this.orders_total_sell = 0;
+    this.current_price = 0;
+    this.total_balance_source = 0;
 
     this.selectedBot = TraderBotHelper.buildTrader();
 
@@ -425,6 +429,16 @@ export class TraderBotManagerComponent implements OnInit {
 
       this.orders_total_buy  = _.sumBy(buy_orders, (p: OpenOrder) => +p.total); // source
       this.orders_total_sell = _.sumBy(sell_orders, (p: OpenOrder) => +p.amount); // trading
+
+      // calculate totals:
+      let max_bid = _.first(dataDepth.bids);
+      let min_ask = _.first(dataDepth.asks);
+      this.current_price = (+max_bid[0] + +min_ask[0]) / 2;
+
+      this.total_balance_source = +this.balances.source 
+                                + ( this.balances.trading * this.current_price )
+                                + this.orders_total_buy
+                                + ( this.orders_total_sell * this.current_price );
       
       // --------------- configure charts ------------
       let order_list_charts = _.map(this.open_orders, (p:any) => {
@@ -886,9 +900,31 @@ export class TraderBotManagerComponent implements OnInit {
 
       //   return +this.orders_total_sell * +price;
       // });
-      let bot_allocation_buy = _.reverse(bot.allocation.buy);
-      let persentage_allocation_buy = this.locateXPoint(result.chart_labels, bot_allocation_buy, 'rate', (p: any) => p.amount);
-      let persentage_allocation_sell = this.locateXPoint(result.chart_labels, bot.allocation.sell, 'rate', (p: any) => p.amount);
+      
+      let sell_persentage_depth: any[] = [];
+      let sum_sell_p: number = 0;
+      for(i = 0; i < bot.allocation.sell.length ; i++) {
+        sum_sell_p += +bot.allocation.sell[i].amount;
+        sell_persentage_depth.push({
+          rate: bot.allocation.sell[i].rate,
+          summ_amount: sum_sell_p
+        });
+      }
+
+      let persentage_allocation_sell = this.locateXPoint(result.chart_labels, sell_persentage_depth, 'rate', (p: any) => p.summ_amount);
+      
+      let buy_persentage_depth: any[] = [];
+      let sum_buy_p: number = 0;
+      for(i = 0; i < bot.allocation.buy.length ; i++) {
+        sum_buy_p += +bot.allocation.buy[i].amount;
+        buy_persentage_depth.push({
+          rate: bot.allocation.buy[i].rate,
+          summ_amount: sum_buy_p
+        });
+      }
+
+      buy_persentage_depth = _.reverse(buy_persentage_depth);
+      let persentage_allocation_buy = this.locateXPoint(result.chart_labels, buy_persentage_depth, 'rate', (p: any) => p.summ_amount);
 
       let series_allocation: any[] = [
         { data: current_orders_allocation, name: 'Current orders', type: 'column' },
@@ -919,6 +955,7 @@ export class TraderBotManagerComponent implements OnInit {
           showLastLabel: true
         },
         yAxis: {
+          type: 'logarithmic',
           title: {text: false},
           labels: {
             formatter: function () {
