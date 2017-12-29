@@ -231,9 +231,6 @@ export class TraderBotManagerComponent implements OnInit {
   
   updateBotSettings():void {
     this.loaderWait.show();
-    this.selectedBot.bot_config.triggers;
-    let action = this.selectedBot.bot_config.triggers[0].actions[0];
-    
     this._traderBotService.updateTrader(this.selectedBot).then(
       (data) => {
         this.loaderWait.hide();
@@ -434,9 +431,11 @@ export class TraderBotManagerComponent implements OnInit {
       let max_bid = _.first(dataDepth.bids);
       let min_ask = _.first(dataDepth.asks);
       this.current_price = (+max_bid[0] + +min_ask[0]) / 2;
-
-      this.total_balance_source = +this.balances.source 
-                                + ( this.balances.trading * this.current_price )
+      
+      let balance_source  = this.balances.source ? +this.balances.source : 0;
+      let balance_trading = this.balances.trading ? +this.balances.trading : 0;
+      this.total_balance_source = balance_source 
+                                + ( balance_trading * this.current_price )
                                 + this.orders_total_buy
                                 + ( this.orders_total_sell * this.current_price );
       
@@ -655,6 +654,9 @@ export class TraderBotManagerComponent implements OnInit {
       let x_deviation_up = _.findIndex(result.chart_labels, (p: number) => {
         return +p >= +bot.prediction_deviation_up;
       });
+
+      if(x_deviation_up == -1)
+        x_deviation_up = result.chart_labels.length - 1;
 
       let x_deviation_down = _.findIndex(result.chart_labels, (p: number) => {
         return +p >= +bot.prediction_deviation_down;

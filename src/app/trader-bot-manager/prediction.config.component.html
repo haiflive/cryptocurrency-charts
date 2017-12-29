@@ -52,7 +52,7 @@
   </div>
 </div>
 
-<legend>Taderer Options:</legend>
+<legend>Trader Options:</legend>
 <div class="row">
   <label class="col-md-7">Active</label>
   <div class="col-md-5">
@@ -162,15 +162,72 @@
 </div>
 
 <div class="row">
+  <label class="col-md-7">Const Buy Mark<u>down</u> [%]</label>
+  <div class="col-md-5">
+    <input [(ngModel)]="config.percentage_buy_statical" type="number" class="form-control form-control-sm" placeholder="0.5"/>
+  </div>
+</div>
+<div class="row">
   <label class="col-md-7">Const Sell Mark<u>up</u> [%]</label>
   <div class="col-md-5">
     <input [(ngModel)]="config.percentage_sell_statical" type="number" class="form-control form-control-sm" placeholder="0.5" />
   </div>
 </div>
+<h5>Reserved Coins</h5>
 <div class="row">
-  <label class="col-md-7">Const Buy Mark<u>down</u> [%]</label>
+  <label class="col-md-7">Unlock Time Source</label>
   <div class="col-md-5">
-    <input [(ngModel)]="config.percentage_buy_statical" type="number" class="form-control form-control-sm" placeholder="0.5"/>
+    <div class="input-group">
+      <input [(ngModel)]="config.reserved_unlock_time_source" type="number" class="form-control form-control-sm" placeholder="3600000" />
+      <div class="input-group-btn" dropdown>
+        <button dropdownToggle type="button" class="btn btn-secondary btn-sm dropdown-toggle">
+          <span class="caret"></span>
+        </button>
+        <div *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu">
+          <a *ngFor="let time_variant of select_time_variants;" class="dropdown-item" href="javascript:void(0)" (click)="config.reserved_unlock_time_source=time_variant.value">{{time_variant.text}}</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <label class="col-md-7">Count Source</label>
+  <div class="col-md-5">
+    <input [(ngModel)]="config.reserved_source" type="number" class="form-control form-control-sm" placeholder="0.5" />
+  </div>
+</div>
+<div class="row">
+  <label class="col-md-7">Unlock Source [%]</label>
+  <div class="col-md-5">
+    <input [(ngModel)]="config.reserved_unlock_pesentage_source" type="number" class="form-control form-control-sm" placeholder="30" />
+  </div>
+</div>
+<div class="row">
+  <label class="col-md-7">Unlock Time Trading</label>
+  <div class="col-md-5">
+    <div class="input-group">
+      <input [(ngModel)]="config.reserved_unlock_time_trading" type="number" class="form-control form-control-sm" placeholder="3600000" />
+      <div class="input-group-btn" dropdown>
+        <button dropdownToggle type="button" class="btn btn-secondary btn-sm dropdown-toggle">
+          <span class="caret"></span>
+        </button>
+        <div *dropdownMenu class="dropdown-menu dropdown-menu-right" role="menu">
+          <a *ngFor="let time_variant of select_time_variants;" class="dropdown-item" href="javascript:void(0)" (click)="config.reserved_unlock_time_trading=time_variant.value">{{time_variant.text}}</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <label class="col-md-7">Count Trading</label>
+  <div class="col-md-5">
+    <input [(ngModel)]="config.reserved_trading" type="number" class="form-control form-control-sm" placeholder="0.5" />
+  </div>
+</div>
+<div class="row">
+  <label class="col-md-7">Unlock Trading [%]</label>
+  <div class="col-md-5">
+    <input [(ngModel)]="config.reserved_unlock_pesentage_trading" type="number" class="form-control form-control-sm" placeholder="30" />
   </div>
 </div>
 

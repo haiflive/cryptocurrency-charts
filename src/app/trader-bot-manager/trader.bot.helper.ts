@@ -143,6 +143,12 @@ export class TraderBotHelper {
         steps_price_multiplier_sell: 1.05,
         steps_amount_multiplier_buy: 1.05,
         steps_amount_multiplier_sell: 1.05,
+        reserved_source: 0,
+        reserved_trading: 0,
+        reserved_unlock_time_source: 3 * 24 * 60 * 60 * 1000, // default 3 days
+        reserved_unlock_time_trading: 3 * 24 * 60 * 60 * 1000, // default 3 days
+        reserved_unlock_pesentage_source: 30, // %
+        reserved_unlock_pesentage_trading: 30, // %
         order_book_depth: 300,
         extremum_smoth_pesentage_up: 2.5, // %
         extremum_smoth_pesentage_down: 2.5, // %
