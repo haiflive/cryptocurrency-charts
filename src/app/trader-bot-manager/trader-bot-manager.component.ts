@@ -583,6 +583,7 @@ export class TraderBotManagerComponent implements OnInit {
             type: 'candlestick',
             name: this.source_coin_code,
             data: ohlc,
+            id: 'ohlc',
             dataGrouping: {
                 units: groupingUnits
             }
@@ -615,7 +616,7 @@ export class TraderBotManagerComponent implements OnInit {
         }, {
             type: 'flags',
             data: trade_list,
-            onSeries: 'dataseries',
+            onSeries: 'ohlc',
             shape: 'circlepin',
             width: 16,
             color: '#d4edda',
@@ -999,7 +1000,7 @@ export class TraderBotManagerComponent implements OnInit {
           chart_data_volume_btc.unshift( btc );
           chart_data_total_btc.unshift( btc_total );
           chart_data_volume.unshift(data.bids[i][1]);
-          chart_data_asks_depth.unshift(0);
+          chart_data_asks_depth.unshift(null);
           chart_data_bids_depth.unshift(total_coins);
           chart_labels.unshift(+data.bids[i][0]);
       }
@@ -1013,7 +1014,7 @@ export class TraderBotManagerComponent implements OnInit {
           chart_data_total_btc.push( btc_total );
           chart_data_volume.push(data.asks[i][1]);
           chart_data_asks_depth.push(total_coins);
-          chart_data_bids_depth.push(0);
+          chart_data_bids_depth.push(null);
           chart_labels.push(+data.asks[i][0]);
       }
         
